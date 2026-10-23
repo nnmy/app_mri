@@ -113,10 +113,15 @@
         server: false,
       },
     ],
+    /** True on a static host (GitHub Pages), where server.py cannot run, so
+     *  widgets with server: true are left out of the home page and the menu.
+     *  Locally, on a LAN or from file://, they show. */
+    staticHost: /\.github\.io$/i.test(location.hostname),
+
     /** A group's widgets in display order: the browser-only ones first,
      *  then those that need server.py (each part in registry order). */
     inGroup(groupId) {
-      const ws = this.widgets.filter((w) => w.group === groupId);
+      const ws = this.widgets.filter((w) => w.group === groupId && !(w.server && this.staticHost));
       return [...ws.filter((w) => !w.server), ...ws.filter((w) => w.server)];
     },
   };
