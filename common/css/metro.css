@@ -1,0 +1,58 @@
+/* ============================================================================
+ * common/css/metro.css — the home page's tiles (Windows 8 "Metro" style)
+ * ----------------------------------------------------------------------------
+ * Flat colour tiles on a grid of square cells, grouped in columns with a
+ * heading. A group is 6 cells wide: small 1×1, medium 2×2, wide 4×2,
+ * large 4×4; "dense" packing fills the holes. Groups that do not fit side
+ * by side wrap to the next line -- never a sideways scroll, so no group is
+ * ever out of sight. On a phone a group is 4 cells wide and the cells grow
+ * with the group's own width (container units: 100vw would count the
+ * scrollbar and push the last column past the edge).
+ * ========================================================================== */
+.start { --cell: 72px; --gap: 8px; }
+.start-head { display: flex; justify-content: flex-end; margin: 4px 0 18px; }
+.start-head input { width: 240px; }
+
+.groups { display: flex; flex-wrap: wrap; gap: 28px 56px; align-items: flex-start; padding-bottom: 16px; }
+.group { min-width: 0; }
+.group h2 { margin: 0 0 12px; font-size: 1.15rem; font-weight: 400; }
+.tiles {
+  display: grid; grid-template-columns: repeat(6, var(--cell)); grid-auto-rows: var(--cell);
+  grid-auto-flow: dense; gap: var(--gap);
+}
+.tile {
+  position: relative; overflow: hidden; display: block; color: #fff; text-decoration: none;
+  background: var(--tile, #3e5c76); outline: 3px solid transparent; outline-offset: -3px;
+  transition: transform .12s ease, outline-color .12s ease, filter .15s ease;
+}
+/* Muted at rest; under the pointer the tile comes alive in its own hue. */
+.tile:hover, .tile:focus-visible { outline-color: rgba(255, 255, 255, .35); filter: saturate(2.6) brightness(1.05); }
+.tile:active { transform: scale(.97); }
+.tile.small  { grid-column: span 1; grid-row: span 1; }
+.tile.medium { grid-column: span 2; grid-row: span 2; }
+.tile.wide   { grid-column: span 4; grid-row: span 2; }
+.tile.large  { grid-column: span 4; grid-row: span 4; }
+.tile img.tile-icon { position: absolute; left: 50%; top: 44%; width: 46%; max-width: 72px;
+                      transform: translate(-50%, -50%); }
+.tile.small img.tile-icon { top: 50%; width: 60%; }
+.tile.wide img.tile-icon, .tile.large img.tile-icon { left: 14px; top: 14px; width: 64px; transform: none; }
+.tile .tile-text { position: absolute; left: 10px; right: 10px; bottom: 8px; line-height: 1.2; }
+.tile .tile-title { display: block; font-size: .95rem; font-weight: 600; }
+.tile.small .tile-text { display: none; }
+.tile.wide .tile-desc { position: absolute; left: 92px; right: 14px; top: 14px; font-size: .78rem;
+                        line-height: 1.35; opacity: .92; overflow: hidden;
+                        display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; }
+.tile.large .tile-desc { position: absolute; left: 14px; right: 14px; top: 96px; font-size: .85rem;
+                         line-height: 1.4; opacity: .92; }
+.tile .tile-badge { position: absolute; top: 6px; right: 6px; padding: 1px 6px; border-radius: 3px;
+                    font-size: .68rem; background: rgba(0, 0, 0, .28); }
+.tile-empty { color: var(--muted); }
+
+@media (max-width: 600px) {
+  .start-head input { width: 100%; }
+  .groups { flex-direction: column; flex-wrap: nowrap; gap: 28px; }
+  .group { width: 100%; container-type: inline-size; }
+  .group .tiles { --cell: calc((100cqi - 3 * var(--gap)) / 4); }
+  .tiles { grid-template-columns: repeat(4, var(--cell)); }
+  .tile.wide .tile-desc { display: none; }
+}
