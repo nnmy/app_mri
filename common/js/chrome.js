@@ -12,7 +12,7 @@
   const Viz = (window.Viz = window.Viz || {});
   const SITE_NAME = "MRI WLAB";
   // The footer's text; empty = no footer.
-  const FOOTER_HTML = "Hirata Laboratory. NITech JP.";
+  const FOOTER_HTML = "Developed by My N. Nguyen x AI";
 
   const body = document.body;
   const root = (body.dataset.root || ".").replace(/\/+$/, "");
