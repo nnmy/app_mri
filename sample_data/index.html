@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sample Data</title>
+  <link rel="icon" href="../common/img/favicon.svg">
+  <link rel="stylesheet" href="../common/css/base.css">
+  <link rel="stylesheet" href="../common/css/med.css">
+  <link rel="stylesheet" href="lib/sample.css">
+</head>
+<body data-root=".." data-widget="sample_data">
+  <main class="page">
+    <div class="page-head">
+      <h1>Sample Data</h1>
+    </div>
+
+    <section class="sec sec-input">
+      <h2 class="sec-label">IXI034 <span class="sec-aside" id="total"></span></h2>
+      <div class="row">
+        <span class="hint grow">One subject of the public IXI dataset; every file in one scanner space.</span>
+        <button type="button" class="btn primary" id="btn-all">Download all (.zip)</button>
+      </div>
+      <div class="status" id="status"></div>
+    </section>
+
+    <div id="groups"></div>
+  </main>
+
+  <script src="../common/registry.js"></script>
+  <script src="../common/js/chrome.js"></script>
+  <script src="../common/js/ui.js"></script>
+  <script src="../common/js/zip.js"></script>
+  <script src="lib/manifest.js"></script>
+  <script src="lib/app.js"></script>
+</body>
+</html>
