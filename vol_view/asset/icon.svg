@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round">
+  <!-- A stack of three slices, the top one with a segment outlined. -->
+  <path d="M8 40 L32 52 L56 40" opacity=".55"/>
+  <path d="M8 32 L32 44 L56 32" opacity=".8"/>
+  <path d="M8 24 L32 12 L56 24 L32 36 Z"/>
+  <ellipse cx="32" cy="24" rx="9" ry="4.5" fill="#fff" fill-opacity=".35"/>
+</svg>
