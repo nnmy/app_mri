@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DWI 3D ⇄ 4D</title>
+  <link rel="icon" href="../common/img/favicon.svg">
+  <link rel="stylesheet" href="../common/css/base.css">
+  <link rel="stylesheet" href="../common/css/med.css">
+  <link rel="stylesheet" href="lib/dwi.css">
+</head>
+<body data-root=".." data-widget="dwi_4d">
+  <main class="page">
+    <div class="page-head">
+      <h1>DWI 3D ⇄ 4D</h1>
+      <p>Merge or split DWI volumes, and pick the gradients to keep.</p>
+    </div>
+
+    <div class="cols">
+      <div>
+        <section class="sec sec-input">
+          <h2 class="sec-label">Input</h2>
+          <div class="md-drops">
+            <div id="drop-dwi"></div>
+            <div id="drop-grad"></div>
+          </div>
+          <div class="status" id="status"></div>
+          <div class="status" id="grad-status"></div>
+        </section>
+
+        <section class="sec hidden" id="sec-volumes">
+          <h2 class="sec-label">Volumes <span class="sec-aside" id="vol-count"></span></h2>
+          <div class="row">
+            <button type="button" class="btn small" id="keep-all">All</button>
+            <button type="button" class="btn small" id="keep-none">None</button>
+            <span class="ctl-label" data-tip="What to do with several b0 volumes: keep them all, keep only the first, or replace them by their mean (one b0, less noise).">b0</span>
+            <select id="b0-mode" aria-label="b0 volumes">
+              <option value="all">Keep all</option>
+              <option value="first">Keep the first</option>
+              <option value="mean">Average into one</option>
+            </select>
+          </div>
+          <div class="row" id="shell-row"></div>
+          <div class="row" id="reduce-row">
+            <span class="ctl-label" data-tip="Of the kept directions of each shell, keep this many, chosen to be as evenly spread as possible (each next one the farthest from those chosen).">Reduce each shell to</span>
+            <input type="number" id="reduce-n" min="1" step="1" value="6" aria-label="Directions per shell">
+            <span class="hint">directions</span>
+            <button type="button" class="btn small" id="btn-reduce">Apply</button>
+          </div>
+          <div class="md-segtable dw-table" id="vol-table"></div>
+          <div id="metrics"></div>
+        </section>
+
+        <section class="sec hidden" id="sec-output">
+          <h2 class="sec-label">Output</h2>
+          <div class="row">
+            <span class="ctl-label" data-tip="4D: one NIfTI holding every kept volume (with .bval / .bvec). 3D: one NIfTI per kept volume, zipped, with one .bval / .bvec for them all.">Write as</span>
+            <select id="out-format" aria-label="Output format">
+              <option value="4d">4D (one NIfTI)</option>
+              <option value="3d">3D (one NIfTI per volume)</option>
+            </select>
+            <span class="ctl-label">Name</span>
+            <input type="text" id="out-name" class="grow" aria-label="Output name">
+          </div>
+          <div class="row hidden" id="pattern-row">
+            <span class="ctl-label" data-tip="How the 3D files are named. {name}: the name above · {index}: 0, 1, 2 … · {n}: 1, 2, 3 … · {source}: the input file's name · {frame}: its frame number · {b}: the b-value. Add :0N to pad with zeros, e.g. {index:03} → 007.">File names</span>
+            <input type="text" id="out-pattern" class="grow" value="{name}_{index:03}" aria-label="File name pattern"
+                   spellcheck="false" autocomplete="off">
+            <span class="hint">.nii.gz</span>
+          </div>
+          <div class="hint dw-names" id="pattern-preview"></div>
+          <div class="row">
+            <span class="hint grow" id="out-what"></span>
+            <button type="button" class="btn primary" id="btn-write">Write</button>
+          </div>
+          <div class="status" id="out-status"></div>
+          <ul class="md-files" id="files"></ul>
+        </section>
+      </div>
+
+      <div>
+        <section class="sec sec-viewer">
+          <h2 class="sec-label">Viewer <span class="sec-aside" id="preview-what"></span></h2>
+          <div id="view-tabs"></div>
+          <div id="pane-gradients">
+            <div class="row dw-sphere-controls">
+              <span class="ctl-label" data-tip="Image: the directions as the .bvec gives them (FSL: along the image's voxel axes). Scanner: turned into scanner RAS through the image's orientation.">Frame</span>
+              <select id="frame" aria-label="Direction frame">
+                <option value="image">Image axes (bvec)</option>
+                <option value="scanner">Scanner (RAS)</option>
+              </select>
+              <span class="ctl-label">Radius</span>
+              <select id="radius" aria-label="Sphere radius">
+                <option value="unit">Unit sphere</option>
+                <option value="b">By b-value (√b)</option>
+              </select>
+              <label class="check"><input type="checkbox" id="antipodes" checked> Opposite directions</label>
+            </div>
+            <div class="dw-sphere-wrap">
+              <canvas id="sphere" aria-label="Gradient directions: drag to turn, click a dot to keep or drop its volume"></canvas>
+              <div class="md-stage-empty dw-empty" id="sphere-empty">Load the DWI volumes and their .bval / .bvec.</div>
+              <div class="dw-tip hidden" id="sphere-tip"></div>
+            </div>
+          </div>
+          <div id="pane-slices" class="hidden">
+            <div id="preview"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="../common/registry.js"></script>
+  <script src="../common/js/chrome.js"></script>
+  <script src="../common/js/ui.js"></script>
+  <script src="../common/js/zip.js"></script>
+  <script src="../common/med/volume.js"></script>
+  <script src="../common/med/io.js"></script>
+  <script src="../common/med/io_nifti.js"></script>
+  <script src="../common/med/io_nrrd.js"></script>
+  <script src="../common/med/labels.js"></script>
+  <script src="../common/med/render.js"></script>
+  <script src="../common/med/viewer.js"></script>
+  <script src="../common/med/sliceview.js"></script>
+  <script src="lib/gradients.js"></script>
+  <script src="lib/sphere.js"></script>
+  <script src="lib/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+/* ============================================================================
+ * dwi_4d/lib/dwi.css — the DWI page's own look: the volume table, the
+ * shell chips and the gradient sphere
+ * ========================================================================== */
+#reduce-n { width: 64px; }
+#shell-row:empty, #shell-row:not(:has(*)) { display: none; }
+.dw-chip { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px 2px 8px; border: 1px solid var(--line);
+           border-radius: 999px; font-size: .82rem; cursor: pointer; }
+.dw-chip .sw { width: 10px; height: 10px; border-radius: 50%; }
+.dw-table { max-height: 380px; }
+.dw-table td.dir { font-family: var(--mono); font-size: .78rem; }
+.dw-table tr.picked td { background: rgba(37, 99, 235, .12); }
+.dw-table td.name { cursor: pointer; }
+.dw-tag { display: inline-block; padding: 0 5px; border-radius: 3px; font-size: .72rem; background: var(--surface-2); color: var(--fg-2); }
+#metrics table { margin-top: 8px; }
+
+.dw-sphere-wrap { position: relative; margin-top: 8px; height: 460px; border: 1px solid var(--line); border-radius: 6px;
+                  background: var(--surface); }
+#sphere { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+#sphere:active { cursor: grabbing; }
+.dw-empty { color: var(--muted); }
+.dw-tip { position: absolute; right: 8px; bottom: 8px; padding: 4px 8px; border-radius: 4px; font: 12px/1.4 var(--mono);
+          background: rgba(17, 24, 39, .85); color: #fff; pointer-events: none; }
+@media (max-width: 600px) { .dw-sphere-wrap { height: 340px; } }
