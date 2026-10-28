@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#4b5a82" stroke-width="3" stroke-linejoin="round">
+  <!-- A cube with a rounded surface inside. -->
+  <path d="M12 20 L32 10 L52 20 L52 44 L32 54 L12 44 Z"/>
+  <path d="M12 20 L32 30 L52 20 M32 30 V54" opacity=".6"/>
+  <ellipse cx="32" cy="32" rx="10" ry="9" fill="#4b5a82" fill-opacity=".35"/>
+</svg>

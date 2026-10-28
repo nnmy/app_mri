@@ -1,0 +1,13 @@
+/* ============================================================================
+ * tractography/lib/tracking.css — the page's own look: the settings grid and
+ * the 3D toolbar's sliders
+ * ========================================================================== */
+.tg-settings { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px 12px; margin: 4px 0 8px; }
+.tg-settings label { display: flex; flex-direction: column; gap: 2px; font-size: .82rem; font-weight: 500; }
+.tg-settings input, .tg-settings select { width: 100%; }
+.tg-settings .tg-wide { grid-column: span 2; }
+@media (max-width: 600px) { .tg-settings { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.tg-toolbar { margin: 8px 0 0; }
+.tg-slider { display: flex; align-items: center; gap: 6px; font-size: .82rem; }
+.tg-slider input[type="range"] { width: 90px; }

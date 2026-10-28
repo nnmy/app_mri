@@ -1,0 +1,7 @@
+# tractography/py: DIPY whole-brain tractography (server.py mounts it).
+# SynthStrip runs under its own env: synthstrip/cpu.requirements.txt.
+gradio>=5
+dipy>=1.9
+nibabel>=5
+numpy>=1.24
+scipy>=1.10

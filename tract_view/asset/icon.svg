@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#7d4e57" stroke-width="3" stroke-linecap="round">
+  <!-- Streamlines fanning through a brain outline. -->
+  <path d="M10 34 C10 18 22 8 34 8 C48 8 56 18 56 32 C56 46 46 56 32 56 C20 56 10 48 10 34 Z" opacity=".45" stroke-width="2.5"/>
+  <path d="M16 40 C24 30 36 28 50 22"/>
+  <path d="M16 32 C26 26 38 26 50 30"/>
+  <path d="M18 24 C28 30 38 36 48 42" opacity=".8"/>
+  <path d="M32 14 C30 26 34 40 32 52" opacity=".8"/>
+</svg>

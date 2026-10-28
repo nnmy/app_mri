@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Volume 3D</title>
+  <link rel="icon" href="../common/img/favicon.svg">
+  <link rel="stylesheet" href="../common/css/base.css">
+  <link rel="stylesheet" href="../common/css/med.css">
+  <link rel="stylesheet" href="lib/vol3d.css">
+</head>
+<body data-root=".." data-widget="vol_3d">
+  <main class="page">
+    <div class="page-head">
+      <h1>Volume 3D</h1>
+      <p>Render a volume in 3D, with its segmentation or VTK surfaces.</p>
+    </div>
+
+    <div class="cols v3-cols">
+      <!-- ================= left: inputs and what is drawn ================= -->
+      <div>
+        <section class="sec sec-input">
+          <h2 class="sec-label">Input</h2>
+          <div class="md-drops md-drops-3">
+            <div id="drop-volume"></div>
+            <div id="drop-seg"></div>
+            <div id="drop-vtk"></div>
+          </div>
+          <div class="row">
+            <div id="drop-lut" class="md-lut grow"></div>
+          </div>
+          <div class="row hidden" id="series-row">
+            <span class="ctl-label">Series</span>
+            <select id="series" class="grow" aria-label="DICOM series"></select>
+          </div>
+          <div class="status" id="status"></div>
+        </section>
+
+        <section class="sec hidden" id="sec-volume">
+          <h2 class="sec-label">Volume <span class="sec-aside" id="vol-aside"></span></h2>
+          <div id="mode-tabs"></div>
+          <div class="v3-grid">
+            <label class="v3-dvr v3-mip">Colour map
+              <select id="cmap">
+                <option value="gray">Grey</option>
+                <option value="hot">Hot</option>
+                <option value="viridis">Viridis</option>
+                <option value="jet">Jet</option>
+              </select></label>
+            <label data-tip="The intensities the sliders span: 1–99 % of the non-zero voxels, or minimum to maximum.">Range
+              <select id="range">
+                <option value="p99">1–99 %</option>
+                <option value="full">Full range</option>
+              </select></label>
+            <label data-tip="Fast while you explore; High for a picture.">Quality
+              <select id="quality">
+                <option value="0.5">Fast</option>
+                <option value="1" selected>Normal</option>
+                <option value="2">High</option>
+              </select></label>
+            <label class="v3-dvr v3-mip" data-tip="Below this, transparent (volume) or black (MIP).">Low <span class="mono hint" id="low-val"></span>
+              <input type="range" id="low" min="0" max="100" step="0.5" value="25"></label>
+            <label class="v3-dvr v3-mip" data-tip="At and above this, the colour map's top and full opacity.">High <span class="mono hint" id="high-val"></span>
+              <input type="range" id="high" min="0" max="100" step="0.5" value="90"></label>
+            <label class="v3-dvr">Opacity <span class="mono hint" id="opacity-val"></span>
+              <input type="range" id="opacity" min="0.005" max="0.5" step="0.005" value="0.08"></label>
+            <label class="v3-iso" data-tip="The surface where the volume crosses this intensity.">Level <span class="mono hint" id="iso-val"></span>
+              <input type="range" id="iso" min="0" max="100" step="0.5" value="35"></label>
+            <label class="v3-iso">Colour
+              <input type="color" id="iso-color" value="#e6d9c7"></label>
+            <label class="check v3-dvr v3-check"><input type="checkbox" id="shade" checked> Shading</label>
+          </div>
+          <div class="row hidden" id="frame-row">
+            <span class="ctl-label">Frame</span>
+            <input type="range" id="frame" class="grow" min="0" max="0" value="0" aria-label="Frame">
+            <span class="hint mono" id="frame-val"></span>
+          </div>
+        </section>
+
+        <section class="sec hidden" id="sec-segments">
+          <h2 class="sec-label">Segments <span class="sec-aside" id="seg-count"></span></h2>
+          <div class="row">
+            <button type="button" class="btn small" id="seg-all">All</button>
+            <button type="button" class="btn small" id="seg-none">None</button>
+            <span class="ctl-label">Opacity</span>
+            <input type="range" id="seg-alpha" class="grow" min="0.05" max="1" step="0.05" value="1" aria-label="Segment opacity">
+            <span class="hint mono" id="seg-alpha-val">1.00</span>
+          </div>
+          <div class="row">
+            <span class="ctl-label" data-tip="Taubin smoothing passes on the surfaces: 0 shows the voxel steps.">Smoothing</span>
+            <input type="range" id="smooth" class="grow" min="0" max="40" step="1" value="10" aria-label="Smoothing">
+            <span class="hint mono" id="smooth-val">10</span>
+          </div>
+          <div class="md-segtable" id="seg-table"></div>
+        </section>
+
+        <section class="sec hidden" id="sec-meshes">
+          <h2 class="sec-label">Surfaces <span class="sec-aside" id="mesh-count"></span></h2>
+          <div class="md-segtable" id="mesh-table"></div>
+        </section>
+
+        <section class="sec collapsed hidden" id="sec-details">
+          <h2 class="sec-label">Metadata</h2>
+          <div id="details"></div>
+        </section>
+      </div>
+
+      <!-- ================= right: the 3D view ================= -->
+      <div>
+        <section class="sec sec-viewer">
+          <h2 class="sec-label">Viewer
+            <span class="sec-aside" data-tip="Drag: rotate · Shift-drag or right-drag: pan · Wheel: zoom · Double-click: reset the view">mouse ⓘ</span></h2>
+          <div class="row v3-toolbar">
+            <div class="md-views" role="group" aria-label="View from">
+              <button type="button" class="btn small" data-view="A" title="From the front">A</button>
+              <button type="button" class="btn small" data-view="P" title="From the back">P</button>
+              <button type="button" class="btn small" data-view="L" title="From the left">L</button>
+              <button type="button" class="btn small" data-view="R" title="From the right">R</button>
+              <button type="button" class="btn small" data-view="S" title="From above">S</button>
+              <button type="button" class="btn small" data-view="I" title="From below">I</button>
+            </div>
+            <button type="button" class="btn small" id="btn-reset">Reset</button>
+            <label class="check"><input type="checkbox" id="spin"> Rotate</label>
+            <span class="grow"></span>
+            <select id="bg" aria-label="Background">
+              <option value="black">Black</option>
+              <option value="white">White</option>
+            </select>
+            <button type="button" class="btn small" id="btn-shot">Screenshot</button>
+          </div>
+          <div class="row">
+            <span class="ctl-label" data-tip="Cut everything (volume and surfaces) along a plane.">Clip</span>
+            <select id="clip-axis" aria-label="Clip plane">
+              <option value="">Off</option>
+              <option value="0">Sagittal (L–R)</option>
+              <option value="1">Coronal (P–A)</option>
+              <option value="2">Axial (I–S)</option>
+            </select>
+            <input type="range" id="clip-pos" class="grow" min="0" max="1000" value="500" disabled aria-label="Clip position">
+            <span class="hint mono" id="clip-val"></span>
+            <label class="check"><input type="checkbox" id="clip-flip" disabled> Flip</label>
+          </div>
+          <div class="md-stage" id="stage">
+            <canvas id="gl" class="md-gl"></canvas>
+            <canvas id="gizmo" class="md-gizmo" width="96" height="96" aria-hidden="true"></canvas>
+            <div class="md-stage-empty" id="empty">Open a volume, a segmentation or VTK surfaces.</div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="../common/registry.js"></script>
+  <script src="../common/js/chrome.js"></script>
+  <script src="../common/js/ui.js"></script>
+  <script src="../common/vendor/dicomParser.min.js"></script>
+  <script src="../common/med/volume.js"></script>
+  <script src="../common/med/io.js"></script>
+  <script src="../common/med/io_nifti.js"></script>
+  <script src="../common/med/io_nrrd.js"></script>
+  <script src="../common/med/io_dicom.js"></script>
+  <script src="../common/med/labels.js"></script>
+  <script src="../common/med/render.js"></script>
+  <script src="../common/med/gl3d.js"></script>
+  <script src="../common/med/surface.js"></script>
+  <script src="../common/med/io_vtk.js"></script>
+  <script src="lib/app.js"></script>
+</body>
+</html>

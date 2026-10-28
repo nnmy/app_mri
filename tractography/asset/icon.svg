@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#5e5486" stroke-width="3" stroke-linecap="round">
+  <!-- Seeds on a voxel grid, streamlines growing from them. -->
+  <path d="M8 16 H56 M8 32 H56 M8 48 H56 M16 8 V56 M32 8 V56 M48 8 V56" opacity=".3" stroke-width="1.5"/>
+  <path d="M12 44 C22 40 28 28 36 24 C44 20 50 22 56 18"/>
+  <path d="M10 28 C20 30 30 38 40 40 C46 41 50 44 54 50" opacity=".8"/>
+  <g fill="#5e5486" stroke="none">
+    <circle cx="24" cy="38" r="3.5"/><circle cx="26" cy="33" r="3.5"/>
+  </g>
+</svg>

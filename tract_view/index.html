@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tract View</title>
+  <link rel="icon" href="../common/img/favicon.svg">
+  <link rel="stylesheet" href="../common/css/base.css">
+  <link rel="stylesheet" href="../common/css/med.css">
+  <link rel="stylesheet" href="lib/tract.css">
+</head>
+<body data-root=".." data-widget="tract_view">
+  <main class="page">
+    <div class="page-head">
+      <h1>Tract View</h1>
+      <p>View whole-brain tracts within chosen segments, by direction.</p>
+    </div>
+
+    <div class="cols tv-cols">
+      <!-- ================= left: input, segments, simplification, output ================= -->
+      <div>
+        <section class="sec sec-input">
+          <h2 class="sec-label">Input</h2>
+          <div class="md-drops">
+            <div id="drop-tracts"></div>
+            <div id="drop-head"></div>
+            <div id="drop-seg"></div>
+            <div id="drop-names"></div>
+          </div>
+          <div class="row hidden" id="space-row">
+            <span class="ctl-label" data-tip="The coordinate frame of the tract file's points. VTK and PLY files carry none unless tagged (SPACE=LPS / RAS); dipy writes LPS. Auto picks the frame in which the points fall on the images.">Tract space</span>
+            <select id="space" aria-label="Tract space">
+              <option value="auto">Auto</option>
+              <option value="LPS">LPS</option>
+              <option value="RAS">RAS</option>
+            </select>
+            <span class="hint" id="space-why"></span>
+          </div>
+          <div class="row hidden" id="head-space-row">
+            <span class="ctl-label" data-tip="The head surface file carries no coordinate frame: RAS is assumed (3D Slicer's surfaces). Choose LPS if it sits mirrored around the tracts.">Head space</span>
+            <select id="head-space" aria-label="Head surface space">
+              <option value="RAS">RAS</option>
+              <option value="LPS">LPS</option>
+            </select>
+          </div>
+          <div class="status" id="status"></div>
+        </section>
+
+        <section class="sec collapsed hidden" id="sec-segments">
+          <h2 class="sec-label">Segments <span class="sec-aside" id="seg-count"></span></h2>
+          <div class="row">
+            <button type="button" class="btn small" id="seg-all">All</button>
+            <button type="button" class="btn small" id="seg-none">None</button>
+            <span class="grow"></span>
+            <span class="ctl-label" data-tip="Clipped: only the parts of the streamlines inside the ticked segments (pieces under 5 mm dropped). Passing through: every streamline that enters a ticked segment, whole.">Tracts</span>
+            <select id="crop" aria-label="Which part of the tracts">
+              <option value="clip">Clipped to segments</option>
+              <option value="pass">Passing through</option>
+            </select>
+          </div>
+          <div class="md-segtable" id="seg-table"></div>
+        </section>
+
+        <section class="sec hidden" id="sec-simplify">
+          <h2 class="sec-label">Simplification</h2>
+          <label class="check" data-tip="A lighter copy for viewing: broken tracts healed (when ticked), short ones dropped, each bundle thinned to a share of its streamlines, each smoothed. Done on the whole tractogram, before the segments.">
+            <input type="checkbox" id="simplify" checked> Simplify the tractogram</label>
+          <div class="status" id="simplify-auto"></div>
+          <div id="simplify-controls">
+            <div class="row">
+              <label class="check" data-tip="Join the pieces of a broken tract: endpoints within the gap whose exit directions are within the angle of head-to-tail.">
+                <input type="checkbox" id="heal"> Heal breaks</label>
+              <span class="ctl-label">gap</span>
+              <input type="number" id="heal-gap" min="0.5" max="5" step="0.5" value="2" aria-label="Heal gap in mm"><span class="hint">mm</span>
+              <span class="ctl-label">angle</span>
+              <input type="number" id="heal-angle" min="10" max="90" step="5" value="45" aria-label="Heal angle in degrees"><span class="hint">°</span>
+            </div>
+            <div class="tv-sliders">
+              <label data-tip="Streamlines shorter than this (after any healing) are dropped.">Min length <span class="mono" id="minlen-val"></span>
+                <input type="range" id="minlen" min="0" max="200" step="5" value="100"></label>
+              <label data-tip="The share of every bundle (QuickBundles, 12 mm) kept; never fewer than one per bundle.">Keep <span class="mono" id="keep-val"></span>
+                <input type="range" id="keep" min="1" max="100" step="1" value="50"></label>
+              <label data-tip="A Gaussian along each streamline, σ in mm (0 = off).">Smoothing <span class="mono" id="smooth-val"></span>
+                <input type="range" id="smooth" min="0" max="3" step="0.25" value="1.5"></label>
+            </div>
+            <div class="hint" id="simplify-summary"></div>
+          </div>
+        </section>
+
+        <section class="sec hidden" id="sec-save">
+          <h2 class="sec-label">Save tracts</h2>
+          <div class="row">
+            <span class="ctl-label" data-tip="The tracts shown: simplified, within the ticked segments, in the chosen direction. VTK: LPS on disk, tagged (dipy / 3D Slicer). TRK: against the segmentation's grid (else 1 mm over the tracts).">Format</span>
+            <select id="save-format" aria-label="Tract file format">
+              <option value="vtk">VTK (.vtk)</option>
+              <option value="trk">TrackVis (.trk)</option>
+            </select>
+            <span class="grow"></span>
+            <button type="button" class="btn primary" id="btn-save">Save</button>
+          </div>
+          <div class="hint" id="save-what"></div>
+        </section>
+
+        <section class="sec collapsed hidden" id="sec-info">
+          <h2 class="sec-label">Tract and surface info</h2>
+          <div id="info" class="md-details"></div>
+        </section>
+
+        <section class="sec collapsed hidden" id="sec-report">
+          <h2 class="sec-label">Export view (PDF)</h2>
+          <div class="row">
+            <span class="ctl-label">Title</span>
+            <input type="text" id="report-title" class="grow" aria-label="Report title">
+          </div>
+          <div class="row">
+            <span class="ctl-label">Page</span>
+            <select id="report-page" aria-label="Page">
+              <option value="a4-portrait">A4 portrait</option>
+              <option value="a4-landscape">A4 landscape</option>
+            </select>
+            <span class="grow"></span>
+            <button type="button" class="btn" id="btn-report-png">PNG</button>
+            <button type="button" class="btn primary" id="btn-report">PDF</button>
+          </div>
+          <div class="status" id="report-status"></div>
+        </section>
+      </div>
+
+      <!-- ================= right: 3D view, projections ================= -->
+      <div>
+        <section class="sec sec-viewer">
+          <h2 class="sec-label">Viewer</h2>
+          <div id="dir-tabs"></div>
+          <div class="row tv-toolbar">
+            <span class="ctl-label">Colour</span>
+            <select id="colour" aria-label="Tract colour">
+              <option value="local">Local direction</option>
+              <option value="class">Direction class</option>
+            </select>
+            <button type="button" class="btn small" id="btn-reset">Reset</button>
+            <label class="check" data-tip="Turn the 3D view slowly about the vertical axis of the screen. Drag to stop it.">
+              <input type="checkbox" id="spin"> Rotate</label>
+            <span class="grow"></span>
+            <select id="bg" aria-label="Background">
+              <option value="black">Black</option>
+              <option value="white">White</option>
+            </select>
+          </div>
+          <div class="tv-opacity">
+            <label>Tracts <span class="mono" id="op-tracts-val"></span><input type="range" id="op-tracts" min="0" max="1" step="0.05" value="0.75"></label>
+            <label data-tip="Line width in screen pixels, in the 3D view and on the projections.">Thickness <span class="mono" id="thick-val"></span><input type="range" id="thick" min="1" max="6" step="0.5" value="1"></label>
+            <label>Head surface <span class="mono" id="op-head-val"></span><input type="range" id="op-head" min="0" max="1" step="0.05" value="0.15"></label>
+            <label class="hidden" id="head-fade-cell" data-tip="How much of the lower head (jaw, neck: usually poorly captured by the scan) fades out, instead of ending in a ragged edge. 0 = no fade.">Head fade <span class="mono" id="head-fade-val"></span><input type="range" id="head-fade" min="0" max="1" step="0.05" value="0.6"></label>
+            <label id="op-seg-cell">Segments <span class="mono" id="op-seg-val"></span><input type="range" id="op-seg" min="0" max="1" step="0.05" value="0"></label>
+          </div>
+          <div class="md-stage" id="stage">
+            <canvas id="gl" class="md-gl" aria-label="3D view: drag to rotate, right-drag or shift-drag to pan, wheel to zoom, double-click to reset"></canvas>
+            <canvas id="gizmo" class="md-gizmo" aria-hidden="true"></canvas>
+            <div class="tv-demo-note hidden" id="demo-note">Sample subject IXI034, simplified — a demonstration.
+              Load a tract file to start.</div>
+            <div class="md-stage-empty" id="empty">Open a tractogram (VTK, PLY, TRK or TCK) — with its head surface and segmentation.</div>
+          </div>
+          <div class="tv-proj hidden" id="proj">
+            <figure><figcaption>Axial</figcaption><canvas id="proj-axial" title="Click: move the coronal and sagittal planes here"></canvas></figure>
+            <figure><figcaption>Coronal</figcaption><canvas id="proj-coronal" title="Click: move the axial and sagittal planes here"></canvas></figure>
+            <figure><figcaption>Sagittal</figcaption><canvas id="proj-sagittal" title="Click: move the axial and coronal planes here"></canvas></figure>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="../common/registry.js"></script>
+  <script src="../common/js/chrome.js"></script>
+  <script src="../common/js/ui.js"></script>
+  <script src="../common/js/pdf.js"></script>
+  <script src="../common/vendor/dicomParser.min.js"></script>
+  <script src="../common/med/volume.js"></script>
+  <script src="../common/med/io.js"></script>
+  <script src="../common/med/io_nifti.js"></script>
+  <script src="../common/med/io_nrrd.js"></script>
+  <script src="../common/med/io_dicom.js"></script>
+  <script src="../common/med/io_vtk.js"></script>
+  <script src="../common/med/io_ply.js"></script>
+  <script src="../common/med/labels.js"></script>
+  <script src="../common/med/render.js"></script>
+  <script src="../common/med/gl3d.js"></script>
+  <script src="../common/med/surface.js"></script>
+  <script src="../common/med/tracts.js"></script>
+  <script src="lib/tracts.js"></script>
+  <script src="lib/simplify.js"></script>
+  <script src="lib/select.js"></script>
+  <script src="lib/app.js"></script>
+</body>
+</html>

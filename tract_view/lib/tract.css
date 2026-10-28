@@ -1,0 +1,62 @@
+/* ============================================================================
+ * tract_view/lib/tract.css — the tract page's own look: the column split,
+ * the slider groups and the three projection panels
+ * ========================================================================== */
+.tv-cols { grid-template-columns: minmax(320px, 2fr) minmax(0, 3.4fr); }
+@media (max-width: 960px) { .tv-cols { grid-template-columns: 1fr; } }
+
+.tv-toolbar { margin: 8px 0 4px; }
+.tv-sliders, .tv-opacity { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px 14px; margin-top: 8px; }
+/* The viewer's sliders: one row, sharing it evenly (4 or 5: the head fade
+   shows once a head surface is loaded). */
+.tv-opacity { display: flex; flex-wrap: wrap; }
+.tv-opacity > label { flex: 1 1 0; min-width: 110px; }
+.tv-opacity > label.hidden { display: none; }
+.tv-sliders label, .tv-opacity label { display: flex; flex-direction: column; gap: 2px; font-size: .82rem; font-weight: 500; }
+.tv-sliders label .mono, .tv-opacity label .mono { font-weight: 400; color: var(--muted); }
+.tv-sliders input[type="range"], .tv-opacity input[type="range"] { width: 100%; }
+
+/* Projections: the page gives all three one height (equalProjectionHeights). */
+.tv-proj { display: flex; justify-content: center; align-items: flex-start; gap: 10px; margin-top: 10px; }
+.tv-proj figure { margin: 0; min-width: 0; }
+.tv-proj figcaption { font-size: .82rem; font-weight: 600; margin-bottom: 3px; }
+.tv-proj canvas { display: block; width: auto; max-width: 100%; height: 200px; background: #000; border-radius: 4px;
+                  image-rendering: auto; cursor: crosshair; }
+.tv-proj input[type="range"] { width: 100%; margin-top: 4px; }
+
+/* Direction bar: "All", then the directions, each as wide as its share. */
+#dir-tabs { display: flex; gap: 6px; align-items: stretch; }
+#dir-tabs button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+                   min-height: 40px; padding: 3px 6px; border: 1px solid var(--line); border-radius: 6px;
+                   background: var(--surface-2); color: var(--fg); font: inherit; font-size: .82rem; cursor: pointer;
+                   overflow: hidden; white-space: nowrap; }
+#dir-tabs button .n { font-weight: 400; color: var(--fg-2); font-size: .78rem; }
+#dir-tabs .tv-dir-all { flex: none; min-width: 58px; }
+.tv-dir-track { flex: 1 1 auto; display: flex; gap: 2px; min-width: 0; }
+#dir-tabs .tv-dir-track button { flex-basis: 0; flex-shrink: 1; min-width: 46px; border-radius: 0;
+                       background: rgba(var(--c), .2); border-color: rgba(var(--c), .45); }
+#dir-tabs .tv-dir-track button:first-child { border-radius: 6px 0 0 6px; }
+#dir-tabs .tv-dir-track button:last-child { border-radius: 0 6px 6px 0; }
+#dir-tabs .tv-dir-track button.empty { opacity: .5; }
+#dir-tabs button:hover { filter: brightness(1.05); }
+#dir-tabs .tv-dir-all.on { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+#dir-tabs .tv-dir-all.on .n { color: var(--bg); }
+#dir-tabs .tv-dir-track button.on { background: rgba(var(--c), .55); border-color: rgb(var(--c)); box-shadow: inset 0 -3px 0 rgb(var(--c)); }
+
+/* The demo (the sample, until the user's first tract file): sections locked,
+   direction tabs and segment opacity hidden, a note on the 3D view. */
+.sec.locked { opacity: .55; }
+.sec.locked > .sec-label { pointer-events: none; }
+.sec.locked > .sec-label::after { content: "🔒 after you load a tract file"; font-size: .72rem; font-weight: 400; color: var(--muted); margin-left: 4px; }
+.tv-demo #dir-tabs, .tv-demo #op-seg-cell { display: none !important; }
+.tv-demo-note { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 2; max-width: calc(100% - 24px);
+                padding: 5px 12px; border-radius: 999px; font-size: .8rem; text-align: center; pointer-events: none;
+                background: rgba(17, 24, 39, .78); color: #f3f4f6; }
+
+@media (max-width: 600px) {
+  .tv-sliders { grid-template-columns: 1fr; }
+  .tv-opacity > label { min-width: 40%; }
+  #dir-tabs .tv-dir-track button { min-width: 40px; padding: 3px 2px; }
+  .tv-proj { flex-direction: column; align-items: stretch; }
+  .tv-proj canvas { width: 100% !important; height: auto !important; }
+}

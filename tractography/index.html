@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tractography</title>
+  <link rel="icon" href="../common/img/favicon.svg">
+  <link rel="stylesheet" href="../common/css/base.css">
+  <link rel="stylesheet" href="../common/css/med.css">
+  <link rel="stylesheet" href="lib/tracking.css">
+</head>
+<body data-root=".." data-widget="tractography">
+  <main class="page">
+    <div class="page-head">
+      <h1>Tractography</h1>
+      <p>Track whole-brain streamlines from a DWI series.</p>
+    </div>
+
+    <div class="cols">
+      <div>
+        <section class="sec sec-input">
+          <h2 class="sec-label">Input</h2>
+          <div class="md-drops">
+            <div id="drop-dwi"></div>
+            <div id="drop-grad"></div>
+          </div>
+          <div class="tg-settings">
+            <label data-tip="The tracking mask: voxels whose FA (from a DTI fit in the brain mask) is at least this. Tracking starts and stops within it.">FA threshold
+              <input type="number" id="fa-thr" min="0.05" max="0.6" step="0.05" value="0.2"></label>
+            <label data-tip="Seeds per voxel along each axis: 1 = one seed per mask voxel, 2 = 8 per voxel (8 × the streamlines and the time).">Seeds per voxel
+              <input type="number" id="seed-density" min="1" max="3" step="1" value="1"></label>
+            <label data-tip="The tracking step along the fibre direction.">Step (mm)
+              <input type="number" id="step" min="0.2" max="2" step="0.025" value="0.875"></label>
+            <label data-tip="Streamlines shorter than this are dropped.">Min length (mm)
+              <input type="number" id="min-length" min="0" max="200" step="5" value="80"></label>
+            <label class="tg-wide" data-tip="Where the DTI is fitted, and so where the tracking mask can be. b6: the lab's Otsu mask on the b0, dilated by 5 % of the smallest dimension; it reaches into skull and scalp, whose noise gives a high FA (the outer ring). SynthStrip: FreeSurfer's skull stripping on the b0; stops at the brain's CSF border.">Brain mask
+              <select id="brain-mask">
+                <option value="b6">b6: Otsu + dilation (the lab's)</option>
+                <option value="synthstrip" selected>SynthStrip (skull stripped)</option>
+              </select></label>
+            <label data-tip="SynthStrip only: its mask edge, where its distance map (mm from the brain's edge, negative inside) is below this. 1 mm is SynthStrip's own default; negative moves the edge inwards, off the cortex's partial-volume voxels.">Border (mm)
+              <input type="number" id="ss-border" min="-10" max="10" step="0.5" value="1"></label>
+          </div>
+          <div class="row">
+            <span class="ctl-label" data-tip="VTK: legacy binary PolyData lines, LPS on disk and tagged SPACE=LPS (dipy, 3D Slicer). PLY: vertices + edges, RAS, tagged SPACE=RAS. Both open in Tract View.">Save as</span>
+            <label class="check"><input type="checkbox" id="fmt-vtk" checked> VTK</label>
+            <label class="check"><input type="checkbox" id="fmt-ply"> PLY</label>
+            <label class="check" data-tip="Also save a lighter copy for viewing and figures, made the same way for every subject: streamlines under 80 mm dropped, 30 % of the rest kept at random (seed 0), a point every 2 mm at most; no healing, no smoothing. Measure on the full file."><input type="checkbox" id="simplified" checked> Simplified copy</label>
+            <span class="grow"></span>
+            <button type="button" class="btn primary" id="btn-run" disabled>Run</button>
+          </div>
+          <div class="hint" id="server-state"></div>
+          <div class="status" id="status"></div>
+        </section>
+
+        <section class="sec hidden" id="sec-output">
+          <h2 class="sec-label">Output</h2>
+          <div id="summary"></div>
+          <ul class="md-files" id="files"></ul>
+        </section>
+
+        <section class="sec hidden" id="sec-console">
+          <h2 class="sec-label">Console</h2>
+          <pre class="md-console" id="console"></pre>
+        </section>
+      </div>
+
+      <div>
+        <section class="sec sec-viewer">
+          <h2 class="sec-label">Viewer</h2>
+          <div id="view-tabs"></div>
+          <div id="pane-3d">
+            <div class="row tg-toolbar">
+              <button type="button" class="btn small" id="btn-reset">Reset</button>
+              <label class="tg-slider" data-tip="Line width in screen pixels.">Thickness
+                <input type="range" id="thick" min="1" max="5" step="0.5" value="1"></label>
+              <label class="tg-slider">Opacity
+                <input type="range" id="opacity" min="0.1" max="1" step="0.05" value="0.8"></label>
+              <span class="grow"></span>
+              <span class="hint" id="shown"></span>
+            </div>
+            <div class="md-stage" id="stage">
+              <canvas id="gl" class="md-gl" aria-label="3D view: drag to rotate, right-drag or shift-drag to pan, wheel to zoom, double-click to reset"></canvas>
+              <div class="md-stage-empty" id="empty">Load the DWI volumes and their .bval / .bvec, then press Run.</div>
+            </div>
+          </div>
+          <div id="pane-fa" class="hidden">
+            <div id="slices"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="../common/registry.js"></script>
+  <script src="../common/js/chrome.js"></script>
+  <script src="../common/js/ui.js"></script>
+  <script src="../common/js/pyclient.js"></script>
+  <script src="../common/med/volume.js"></script>
+  <script src="../common/med/io.js"></script>
+  <script src="../common/med/io_nifti.js"></script>
+  <script src="../common/med/io_nrrd.js"></script>
+  <script src="../common/med/io_vtk.js"></script>
+  <script src="../common/med/render.js"></script>
+  <script src="../common/med/viewer.js"></script>
+  <script src="../common/med/sliceview.js"></script>
+  <script src="../common/med/gl3d.js"></script>
+  <script src="../common/med/tracts.js"></script>
+  <script src="lib/app.js"></script>
+</body>
+</html>
