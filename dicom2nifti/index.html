@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DICOM → NIfTI</title>
+  <link rel="icon" href="../common/img/favicon.svg">
+  <link rel="stylesheet" href="../common/css/base.css">
+  <link rel="stylesheet" href="../common/css/med.css">
+</head>
+<body data-root=".." data-widget="dicom2nifti">
+  <main class="page">
+    <div class="page-head">
+      <h1>DICOM → NIfTI</h1>
+      <p>Convert a DICOM study to one NIfTI per series.</p>
+    </div>
+
+    <div class="cols">
+      <div>
+        <section class="sec sec-input">
+          <h2 class="sec-label">Input</h2>
+          <div id="drop"></div>
+          <div class="row">
+            <button type="button" class="btn small" id="btn-folder">DICOM folder…</button>
+            <span class="grow"></span>
+            <span class="ctl-label" data-tip="In the browser: uncompressed DICOM, nothing leaves this computer. dcm2niix: any DICOM (JPEG, JPEG 2000, RLE, mosaics), sent to the local server.py, deleted after conversion.">Converter</span>
+            <select id="converter" aria-label="Converter">
+              <option value="browser">In the browser</option>
+              <option value="server">dcm2niix (server)</option>
+            </select>
+            <button type="button" class="btn primary" id="btn-convert" disabled>Convert</button>
+          </div>
+          <div class="hint" id="server-state"></div>
+          <div class="status" id="status"></div>
+        </section>
+
+        <section class="sec hidden" id="sec-output">
+          <h2 class="sec-label">Output</h2>
+          <div id="summary" class="status"></div>
+          <ul class="md-files" id="files"></ul>
+        </section>
+
+        <section class="sec collapsed hidden" id="sec-console">
+          <h2 class="sec-label">Console</h2>
+          <pre class="md-console" id="console"></pre>
+        </section>
+      </div>
+
+      <div>
+        <section class="sec sec-viewer">
+          <h2 class="sec-label">Series <span class="sec-aside" id="series-count"></span></h2>
+          <div class="md-segtable md-series" id="series"></div>
+          <div id="preview" class="md-preview-view"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="../common/registry.js"></script>
+  <script src="../common/js/chrome.js"></script>
+  <script src="../common/js/ui.js"></script>
+  <script src="../common/js/zip.js"></script>
+  <script src="../common/js/pyclient.js"></script>
+  <script src="../common/vendor/dicomParser.min.js"></script>
+  <script src="../common/med/volume.js"></script>
+  <script src="../common/med/io.js"></script>
+  <script src="../common/med/io_nifti.js"></script>
+  <script src="../common/med/io_nrrd.js"></script>
+  <script src="../common/med/io_dicom.js"></script>
+  <script src="../common/med/labels.js"></script>
+  <script src="../common/med/render.js"></script>
+  <script src="../common/med/viewer.js"></script>
+  <script src="../common/med/sliceview.js"></script>
+  <script src="lib/roles.js"></script>
+  <script src="lib/app.js"></script>
+</body>
+</html>

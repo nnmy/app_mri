@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MRI WLAB Guide</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1f2937; --muted: #6b7280; --line: #e5e7eb; --soft: #f3f4f6; --code: #f3f4f6;
+    --accent: #ea580c; --link: #2563eb; --note: #eff6ff; --note-line: #93c5fd; --warn: #fff7ed; --warn-line: #fdba74;
+    --d-browser: #dbeafe; --d-browser-line: #3b82f6; --d-server: #ffedd5; --d-server-line: #f97316;
+    --d-data: #dcfce7; --d-data-line: #22c55e; --d-text: #1f2937;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111318; --fg: #e5e7eb; --muted: #9ca3af; --line: #2d3340; --soft: #1a1e26; --code: #1f2430;
+      --accent: #fb923c; --link: #60a5fa; --note: #13233d; --note-line: #2b5ea7; --warn: #2e1f12; --warn-line: #9a5a24;
+      --d-browser: #13233d; --d-browser-line: #60a5fa; --d-server: #2e1f12; --d-server-line: #fb923c;
+      --d-data: #11291a; --d-data-line: #4ade80; --d-text: #e5e7eb;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans JP", sans-serif; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 24px 16px 64px; display: grid;
+          grid-template-columns: 250px minmax(0, 1fr); gap: 40px; }
+  nav.toc { position: sticky; top: 16px; align-self: start; max-height: calc(100vh - 32px); overflow-y: auto;
+            font-size: .9rem; border-right: 1px solid var(--line); padding-right: 16px; }
+  nav.toc h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
+  nav.toc ol { margin: 0; padding-left: 18px; }
+  nav.toc ol ol { padding-left: 16px; margin: 2px 0 6px; font-size: .86rem; }
+  nav.toc li { margin: 3px 0; }
+  nav.toc a { color: var(--fg); text-decoration: none; }
+  nav.toc a:hover { color: var(--link); text-decoration: underline; }
+  main { min-width: 0; }
+  header.title h1 { font-size: 2.1rem; margin: 0 0 4px; letter-spacing: -.01em; }
+  header.title p { margin: 0; color: var(--muted); }
+  h2 { font-size: 1.5rem; margin: 48px 0 12px; padding-top: 8px; border-top: 1px solid var(--line); }
+  h3 { font-size: 1.15rem; margin: 28px 0 8px; }
+  h4 { font-size: 1rem; margin: 18px 0 4px; }
+  a { color: var(--link); }
+  code, pre, kbd { font-family: ui-monospace, "DejaVu Sans Mono", Menlo, Consolas, monospace; font-size: .88em; }
+  code { background: var(--code); padding: 1px 5px; border-radius: 4px; }
+  pre { background: var(--code); padding: 12px 14px; border-radius: 8px; overflow-x: auto; line-height: 1.45; }
+  pre code { background: none; padding: 0; }
+  kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--soft); }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 10px 0; }
+  th, td { border-bottom: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); font-weight: 600; }
+  .scroll { overflow-x: auto; }
+  .note, .warn { border-left: 4px solid var(--note-line); background: var(--note); padding: 10px 14px; border-radius: 6px; margin: 12px 0; }
+  .warn { border-left-color: var(--warn-line); background: var(--warn); }
+  figure { margin: 16px 0; }
+  figure svg { width: 100%; height: auto; display: block; }
+  figcaption { font-size: .85rem; color: var(--muted); margin-top: 6px; }
+  .tag { display: inline-block; padding: 0 7px; border-radius: 999px; font-size: .78rem; font-weight: 600; color: #fff; }
+  .tag.browser { background: #2563eb; } .tag.server { background: #ea580c; } .tag.both { background: #7c3aed; }
+  .widget { border: 1px solid var(--line); border-radius: 10px; padding: 4px 18px 12px; margin: 18px 0; }
+  .widget h3 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .widget .sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  .widget dl { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 4px 14px; margin: 8px 0; }
+  .widget dt { font-weight: 600; color: var(--muted); }
+  .widget dd { margin: 0; }
+  ol.steps li, ul li { margin: 3px 0; }
+  .back { font-size: .8rem; margin-left: 8px; font-weight: 400; }
+  footer { margin-top: 56px; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--line); padding-top: 12px; }
+  svg text { font-family: system-ui, sans-serif; fill: var(--d-text); }
+  @media (max-width: 860px) {
+    .wrap { grid-template-columns: 1fr; gap: 16px; }
+    nav.toc { position: static; max-height: none; border-right: 0; border-bottom: 1px solid var(--line); padding: 0 0 12px; }
+    .widget dl { grid-template-columns: 1fr; }
+    .widget dt { margin-top: 6px; }
+  }
+  @media print {
+    nav.toc { display: none; } .wrap { display: block; } .back { display: none; }
+    h2 { break-before: page; } .widget { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="toc" aria-label="Contents">
+  <h2>Contents</h2>
+  <ol>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#deploy">Deploying</a>
+      <ol>
+        <li><a href="#requirements">Requirements</a></li>
+        <li><a href="#start">Starting the server</a></li>
+        <li><a href="#lan">Opening it to the lab network</a></li>
+        <li><a href="#service">Keeping it running</a></li>
+        <li><a href="#static">Without Python</a></li>
+      </ol></li>
+    <li><a href="#using">Using the site</a>
+      <ol>
+        <li><a href="#home">Home page and menu</a></li>
+        <li><a href="#page">How every page works</a></li>
+        <li><a href="#phone">On a smartphone</a></li>
+        <li><a href="#privacy">Where your files go</a></li>
+      </ol></li>
+    <li><a href="#widgets">The widgets</a>
+      <ol>
+        <li><a href="#w-vol_view">Volume Slices</a></li>
+        <li><a href="#w-vol_3d">Volume 3D</a></li>
+        <li><a href="#w-dicom2nifti">DICOM → NIfTI</a></li>
+        <li><a href="#w-resample">Resampling</a></li>
+        <li><a href="#w-registration">Registration</a></li>
+        <li><a href="#w-tract_view">Tract View</a></li>
+        <li><a href="#w-dwi_4d">DWI 3D ⇄ 4D</a></li>
+        <li><a href="#w-tractography">Tractography</a></li>
+        <li><a href="#w-sample_data">Sample Data</a></li>
+      </ol></li>
+    <li><a href="#tour">A tour with the sample data</a></li>
+    <li><a href="#trouble">Troubleshooting</a></li>
+    <li><a href="#extend">Adding a widget</a></li>
+    <li><a href="#history">Document history</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="title">
+  <h1>MRI WLAB — User and Deployment Guide</h1>
+  <p>Hirata Laboratory, NITech · the web app in <code>APP_MRI/</code> · last updated 2026-10-23</p>
+</header>
+
+<!-- ======================================================================= -->
+<h2 id="overview">1. Overview <a class="back" href="#">↑ top</a></h2>
+<p>MRI WLAB is a small website of <b>widgets</b>: one page per tool, for viewing and processing MRI data — DICOM
+series, NIfTI and NRRD volumes, segmentations, surfaces, diffusion-weighted images and tractograms.</p>
+<p>Most widgets run <b>entirely in the browser</b>: a file you open is read on your own computer and never
+uploaded. A few jobs are better done in Python (image registration, decoding compressed DICOM); those run in
+<b>one local server</b>, <code>server.py</code>, which also serves the pages.</p>
+
+<figure>
+<svg viewBox="0 0 760 330" role="img" aria-labelledby="arch-t">
+  <title id="arch-t">Architecture: the browser runs the pages; server.py serves them and runs the Python services</title>
+  <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 0 L10 5 L0 10 z" fill="var(--muted)"/></marker></defs>
+  <!-- browser -->
+  <rect x="10" y="20" width="330" height="290" rx="12" fill="var(--d-browser)" stroke="var(--d-browser-line)" stroke-width="2"/>
+  <text x="26" y="48" font-size="17" font-weight="700">Browser (computer or phone)</text>
+  <rect x="30" y="64" width="290" height="62" rx="8" fill="var(--bg)" stroke="var(--d-browser-line)"/>
+  <text x="44" y="88" font-size="14" font-weight="600">Widget pages</text>
+  <text x="44" y="108" font-size="12.5">HTML · CSS · JavaScript, one folder each</text>
+  <rect x="30" y="138" width="290" height="62" rx="8" fill="var(--bg)" stroke="var(--d-browser-line)"/>
+  <text x="44" y="162" font-size="14" font-weight="600">common/ — shared code</text>
+  <text x="44" y="182" font-size="12.5">readers, viewers, 3D, PDF, zip</text>
+  <rect x="30" y="212" width="290" height="80" rx="8" fill="var(--d-data)" stroke="var(--d-data-line)"/>
+  <text x="44" y="236" font-size="14" font-weight="600">Your files</text>
+  <text x="44" y="256" font-size="12.5">read and processed here, in memory;</text>
+  <text x="44" y="274" font-size="12.5">results saved back as downloads</text>
+  <!-- server -->
+  <rect x="420" y="20" width="330" height="290" rx="12" fill="var(--d-server)" stroke="var(--d-server-line)" stroke-width="2"/>
+  <text x="436" y="48" font-size="17" font-weight="700">server.py (one port, e.g. 8001)</text>
+  <rect x="440" y="64" width="290" height="62" rx="8" fill="var(--bg)" stroke="var(--d-server-line)"/>
+  <text x="454" y="88" font-size="14" font-weight="600">/  — the site's files</text>
+  <text x="454" y="108" font-size="12.5">index.html, common/, every widget</text>
+  <rect x="440" y="138" width="290" height="62" rx="8" fill="var(--bg)" stroke="var(--d-server-line)"/>
+  <text x="454" y="162" font-size="14" font-weight="600">/py/registration</text>
+  <text x="454" y="182" font-size="12.5">SimpleITK (Gradio service)</text>
+  <rect x="440" y="212" width="290" height="62" rx="8" fill="var(--bg)" stroke="var(--d-server-line)"/>
+  <text x="454" y="236" font-size="14" font-weight="600">/py/dicom2nifti</text>
+  <text x="454" y="256" font-size="12.5">dcm2niix (Gradio service)</text>
+  <!-- arrows -->
+  <line x1="420" y1="95" x2="342" y2="95" stroke="var(--muted)" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="352" y="86" font-size="12">pages</text>
+  <line x1="342" y1="190" x2="418" y2="190" stroke="var(--muted)" stroke-width="2" marker-end="url(#ar)" stroke-dasharray="5 4"/>
+  <line x1="418" y1="216" x2="342" y2="216" stroke="var(--muted)" stroke-width="2" marker-end="url(#ar)" stroke-dasharray="5 4"/>
+  <text x="346" y="182" font-size="11.5">server widgets</text>
+  <text x="346" y="236" font-size="11.5">only</text>
+</svg>
+<figcaption>Figure 1. The browser runs every page; only the server widgets send files to <code>server.py</code>
+(dashed), and the server deletes them after use.</figcaption>
+</figure>
+
+<h3>Widgets at a glance</h3>
+<div class="scroll"><table>
+<thead><tr><th>Group</th><th>Widget</th><th>What it does</th><th>Runs</th></tr></thead>
+<tbody>
+<tr><td>Viewing</td><td><a href="#w-vol_view">Volume Slices</a></td><td>A DICOM series / NIfTI volume / segmentation and its metadata, slice by slice; mosaic export</td><td><span class="tag browser">browser</span></td></tr>
+<tr><td>Viewing</td><td><a href="#w-vol_3d">Volume 3D</a></td><td>A volume in 3D, with its segmentation as surfaces and VTK meshes</td><td><span class="tag browser">browser</span></td></tr>
+<tr><td>Processing</td><td><a href="#w-dicom2nifti">DICOM → NIfTI</a></td><td>One NIfTI and an anonymised sidecar per series; T1/T2 recognised</td><td><span class="tag both">browser + server</span></td></tr>
+<tr><td>Processing</td><td><a href="#w-resample">Resampling</a></td><td>Volumes to an isotropic voxel size, same field of view</td><td><span class="tag browser">browser</span></td></tr>
+<tr><td>Processing</td><td><a href="#w-registration">Registration</a></td><td>A moving image onto a fixed one, rigid or affine</td><td><span class="tag server">server</span></td></tr>
+<tr><td>dMRI</td><td><a href="#w-tract_view">Tract View</a></td><td>Whole-brain tracts within chosen segments, by direction</td><td><span class="tag browser">browser</span></td></tr>
+<tr><td>dMRI</td><td><a href="#w-dwi_4d">DWI 3D ⇄ 4D</a></td><td>Merge or split DWI volumes; choose the gradients to keep</td><td><span class="tag browser">browser</span></td></tr>
+<tr><td>dMRI</td><td><a href="#w-tractography">Tractography</a></td><td>Whole-brain streamlines from a DWI series (VTK / PLY)</td><td><span class="tag server">server</span></td></tr>
+<tr><td>Resources</td><td><a href="#w-sample_data">Sample Data</a></td><td>One IXI subject's files to try the widgets with</td><td><span class="tag browser">browser</span></td></tr>
+<tr><td>Resources</td><td><a href="#w-demo_brain_aging">Brain Aging Demo</a></td><td>A younger and an older subject's tracts by tissue and direction</td><td><span class="tag browser">browser</span></td></tr>
+</tbody></table></div>
+
+<!-- ======================================================================= -->
+<h2 id="deploy">2. Deploying <a class="back" href="#">↑ top</a></h2>
+
+<h3 id="requirements">2.1 Requirements</h3>
+<ul>
+  <li><b>Python 3.10 or later</b> with the packages in each <code>&lt;widget&gt;/py/requirements.txt</code>:
+    <code>gradio</code> (5 or later; it brings <code>fastapi</code> and <code>uvicorn</code>), <code>SimpleITK</code>,
+    <code>nibabel</code>, <code>numpy</code>, <code>matplotlib</code>.</li>
+  <li><b>dcm2niix</b> for the server DICOM converter: on the <code>PATH</code> or at <code>~/bin/dcm2niix</code>
+    (<a href="https://github.com/rordenlab/dcm2niix">github.com/rordenlab/dcm2niix</a>). Without it the
+    browser converter still works.</li>
+  <li><b>A current browser</b> for the users: Chrome, Edge, Firefox, or Safari 16.4 or later. Volume 3D and Tract View
+    need WebGL2 (hardware graphics).</li>
+</ul>
+<pre><code>pip install "gradio&gt;=5" "SimpleITK&gt;=2.3" "nibabel&gt;=5" numpy matplotlib</code></pre>
+
+<h3 id="start">2.2 Starting the server</h3>
+<ol class="steps">
+  <li>Go to the site's folder and start it:
+<pre><code>cd APP_MRI
+python server.py                       # http://127.0.0.1:8001/  (this computer only)
+python server.py --port 8080           # another port</code></pre></li>
+  <li>Open <code>http://127.0.0.1:8001/</code>. The console lists every Python service it mounted
+    (<code>Service /py/registration</code>, …). A service whose packages are missing is skipped with a warning;
+    the rest still start.</li>
+</ol>
+<div class="note">One server runs everything: the pages and every widget's Python service, on one port. A widget never needs a
+server of its own.</div>
+
+<h3 id="lan">2.3 Opening it to the lab network</h3>
+<pre><code>python server.py --host 0.0.0.0 --port 8001
+hostname -I                            # this computer's address, e.g. 192.168.1.20
+sudo ufw allow 8001                    # if the ufw firewall is on</code></pre>
+<p>Others then open <code>http://192.168.1.20:8001/</code>, on a computer or a phone on the same network.</p>
+<div class="warn"><b>Only on a trusted network.</b> The server has no login. Anyone who can reach the port can use the server
+widgets. Do not expose it to the internet.</div>
+
+<h3 id="service">2.4 Keeping it running</h3>
+<p>To keep the server running after you log out, run it under <code>tmux</code>/<code>screen</code>, or as a systemd service:</p>
+<pre><code># /etc/systemd/system/mri-wlab.service
+[Unit]
+Description=MRI WLAB
+After=network.target
+
+[Service]
+User=&lt;your user&gt;
+WorkingDirectory=/home/&lt;your user&gt;/Documents/APP_MRI
+ExecStart=/path/to/python server.py --host 0.0.0.0 --port 8001
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+<pre><code>sudo systemctl daemon-reload &amp;&amp; sudo systemctl enable --now mri-wlab
+journalctl -u mri-wlab -f              # its log</code></pre>
+<p>Files sent to the server widgets are kept in the system temp folder (<code>/tmp/mri_wlab/&lt;widget&gt;/</code>) and
+deleted after two hours. The uploaded DICOM is deleted as soon as it has been converted.</p>
+
+<h3 id="static">2.5 Without Python</h3>
+<p>The browser widgets need no server at all. Any static file server works (<code>python -m http.server</code>,
+nginx, a shared drive), and so does opening <code>APP_MRI/index.html</code> straight from the disk. What
+you lose:</p>
+<ul>
+  <li><b>Registration</b>, <b>Tractography</b> and dcm2niix in <b>DICOM → NIfTI</b>: these pages say so and disable their button.</li>
+  <li>When the page is opened from the disk, Sample Data's <b>Download all</b>: download the files one by one instead.</li>
+</ul>
+
+<!-- ======================================================================= -->
+<h2 id="using">3. Using the site <a class="back" href="#">↑ top</a></h2>
+
+<h3 id="home">3.1 Home page and menu</h3>
+<p>The home page shows every widget as a coloured tile, grouped by what it does (Viewing, Processing, dMRI,
+Resources). Type in <b>Filter widgets…</b> to narrow them down. A tile marked <i>needs server.py</i> works
+only when the site is served by <code>server.py</code>. In each group, these tiles come last.
+The <b>Widgets ▾</b> menu in the top bar reaches any widget from any page.</p>
+
+<h3 id="page">3.2 How every page works</h3>
+<figure>
+<svg viewBox="0 0 760 250" role="img" aria-labelledby="lay-t">
+  <title id="lay-t">Page layout: input and outputs on the left, the viewer on the right</title>
+  <rect x="10" y="10" width="740" height="30" rx="6" fill="#1f2937"/>
+  <text x="24" y="31" font-size="13" style="fill:#f9fafb" font-weight="700">MRI WLAB   Home   Widgets ▾</text>
+  <text x="20" y="64" font-size="15" font-weight="700">Title</text>
+  <text x="20" y="82" font-size="12" style="fill:var(--muted)">one-line description</text>
+  <rect x="20" y="94" width="290" height="62" rx="8" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/>
+  <text x="34" y="116" font-size="13" font-weight="700">Input ▾</text>
+  <text x="34" y="138" font-size="11.5">drop zones · options · Run</text>
+  <rect x="20" y="164" width="290" height="34" rx="8" fill="var(--bg)" stroke="var(--line)"/>
+  <text x="34" y="186" font-size="13" font-weight="700">Output ▾</text>
+  <rect x="20" y="206" width="290" height="34" rx="8" fill="var(--soft)" stroke="var(--line)"/>
+  <text x="34" y="228" font-size="13" font-weight="700">Metadata ▸ (folded)</text>
+  <rect x="330" y="94" width="410" height="146" rx="8" fill="var(--bg)" stroke="var(--d-text)" stroke-width="1.5"/>
+  <text x="344" y="116" font-size="13" font-weight="700">Viewer ▾</text>
+  <text x="344" y="138" font-size="11.5">tabs · controls · slices / 3D view</text>
+  <rect x="344" y="150" width="382" height="78" rx="4" fill="#000"/>
+</svg>
+<figcaption>Figure 2. Every page has the same layout: Input (orange outline) and outputs on the left, the Viewer on the
+right. On a narrow screen the columns stack.</figcaption>
+</figure>
+<ul>
+  <li><b>Sections</b> fold away when you click their title (▾/▸). Secondary ones (Metadata, Export, Console) start
+    folded.</li>
+  <li><b>Drop zones</b>: drop files onto them, or click to choose. A DICOM series can be dropped as its folder
+    (or Shift-click the zone to pick a folder). <b>×</b> clears the zone. A <span style="color:var(--accent)">*</span>
+    marks a required input.</li>
+  <li><b>Tooltips</b>: hover over a control's label for its explanation.</li>
+  <li><b>Results</b> come as download links (several files also as one <code>.zip</code>), and are never
+    written anywhere else.</li>
+  <li><b>Slices</b> are shown neurological: the subject's left on the screen's left, anterior up (axial).</li>
+  <li><b>Hovering</b> a slice shows the value under the cursor, with a crosshair linked across panels.
+    A click locks the crosshair there, and another click (or <kbd>Esc</kbd>) releases it.</li>
+</ul>
+
+<h3 id="phone">3.3 On a smartphone</h3>
+<p>Every page fits a phone screen: the two columns stack and wide rows wrap. In the 3D views, drag
+with one finger to rotate, and pinch with two to zoom or move them together to pan. Large files (a
+whole-brain tractogram, a big T1) can be slow on a phone. Tract View simplifies heavy tractograms
+automatically.</p>
+
+<h3 id="privacy">3.4 Where your files go</h3>
+<ul>
+  <li><b>Browser widgets</b> (everything except the three below): files stay on your device, in memory, and
+    are gone when you close the tab.</li>
+  <li><b>Registration</b>, <b>Tractography</b> and <b>DICOM → NIfTI with dcm2niix</b>: files are sent to the machine running
+    <code>server.py</code>, processed there, and deleted (DICOM right away, results after two hours).</li>
+  <li>The DICOM converters write sidecars <b>without</b> the patient's name, IDs or birth date. Volume Slices
+    shows the DICOM patient fields in Metadata and prints them on mosaics: check before sharing a mosaic.</li>
+</ul>
+
+<!-- ======================================================================= -->
+<h2 id="widgets">4. The widgets <a class="back" href="#">↑ top</a></h2>
+
+<section class="widget" id="w-vol_view">
+<h3><span class="sw" style="background:#3e5c76"></span>Volume Slices <span class="tag browser">browser</span></h3>
+<p>View a DICOM series, NIfTI or NRRD volume, with or without a segmentation, slice by slice.</p>
+<dl>
+  <dt>Inputs</dt><dd>Image (DICOM files or folder, NIfTI, NRRD) · Segmentation (NIfTI, NRRD; 3D Slicer
+    <code>.seg.nrrd</code> brings its names and colours) · Label names (CSV <code>id,name[,r,g,b]</code>, ITK-SNAP,
+    FreeSurfer / Slicer colour table).</dd>
+  <dt>Viewer</dt><dd>Axial / Coronal / Sagittal tabs and a slice slider. Range 1–99 % or full, colour map,
+    brightness and contrast. The image appears beside the segments drawn over it.</dd>
+  <dt>Segments</dt><dd>Show or hide each one (fill, outline or both; opacity). Clicking a name highlights the segment and jumps to the
+    slice holding most of it.</dd>
+  <dt>Export</dt><dd>A mosaic of the current plane as PNG or PDF. Set the grid (rows × columns) and the slices (auto, or
+    indices such as <code>20, 34, 40-60</code>). The metadata is printed underneath.</dd>
+  <dt>Notes</dt><dd>Image and segmentation are matched in world space, so their grids may differ. A segmentation saved
+    with the image's matrix but a wrong header can be matched by voxel index instead. Compressed DICOM needs
+    <a href="#w-dicom2nifti">DICOM → NIfTI</a> (dcm2niix) first.</dd>
+</dl>
+</section>
+
+<section class="widget" id="w-vol_3d">
+<h3><span class="sw" style="background:#4b5a82"></span>Volume 3D <span class="tag browser">browser</span></h3>
+<p>Render a volume in 3D, with its segmentation as surfaces and any VTK meshes.</p>
+<dl>
+  <dt>Inputs</dt><dd>Volume (DICOM, NIfTI, NRRD) · Segmentation · Surfaces (legacy VTK; RAS unless tagged
+    <code>SPACE=LPS</code>) · Label names.</dd>
+  <dt>Volume</dt><dd>Volume (ray-cast, with a window and opacity), MIP, Isosurface (with level and colour), or Off.</dd>
+  <dt>Surfaces</dt><dd>Each segment gets a smooth surface, with its own visibility and colour, a shared opacity and smoothing.
+    Each VTK file gets its own colour, opacity and space.</dd>
+  <dt>View</dt><dd>Drag to rotate; right-drag or Shift-drag to pan; wheel or pinch to zoom; double-click to
+    reset. A/P/L/R/S/I views, a clip plane, black or white background, a screenshot (PNG).</dd>
+</dl>
+</section>
+
+<section class="widget" id="w-dicom2nifti">
+<h3><span class="sw" style="background:#4a6b5d"></span>DICOM → NIfTI <span class="tag both">browser + server</span></h3>
+<p>Convert a DICOM study to one NIfTI per series.</p>
+<dl>
+  <dt>Inputs</dt><dd>The study's files, its folder, or a <code>.zip</code> of it (any folder layout).</dd>
+  <dt>Converter</dt><dd><b>In the browser</b>: uncompressed DICOM, nothing leaves the computer. The series are listed as soon as
+    the files are dropped; untick what you do not want. <b>dcm2niix (server)</b>: any DICOM (JPEG, JPEG 2000,
+    RLE, mosaics).</dd>
+  <dt>Output</dt><dd><code>&lt;series&gt;_&lt;protocol&gt;.nii.gz</code> and a <code>.json</code> sidecar per series (dcm2niix's
+    field names, no patient identity), plus a zip of everything. Each series gets a role guess (T1 / T2, from its
+    name and echo time); the best of each is starred.</dd>
+</dl>
+</section>
+
+<section class="widget" id="w-resample">
+<h3><span class="sw" style="background:#3f6a6e"></span>Resampling <span class="tag browser">browser</span></h3>
+<p>Resample volumes to an isotropic voxel size, keeping the field of view (the output overlays the input).</p>
+<dl>
+  <dt>Inputs</dt><dd>One or several NIfTI / NRRD volumes · voxel size (0.1–10 mm) · interpolation (Auto,
+    Nearest, Linear, B-spline) · To RAS.</dd>
+  <dt>How</dt><dd>Auto uses nearest-neighbour for a label map (an integer type with at most 256 values) and linear for an
+    image. Images are smoothed first along any axis whose voxels grow, so they do not alias. "To RAS" reorders the
+    axes without interpolating.</dd>
+  <dt>Output</dt><dd><code>&lt;name&gt;_&lt;size&gt;mm.nii.gz</code> per file (and a zip). The viewer shows before and after side by
+    side, with a table of both grids.</dd>
+</dl>
+</section>
+
+<section class="widget" id="w-registration">
+<h3><span class="sw" style="background:#5e6b4a"></span>Registration <span class="tag server">server</span></h3>
+<p>Register a moving image (M) onto a fixed one (F), rigid or affine.</p>
+<dl>
+  <dt>Inputs</dt><dd>Fixed image · moving image · optionally a segmentation of M (moved with it) · method (Rigid 6 DOF,
+    Affine 12 DOF) · match F's voxel size / F's dimensions.</dd>
+  <dt>How</dt><dd>SimpleITK, Mattes mutual information (F and M may differ in modality), coarse to fine. The page streams the
+    log while it runs; a typical brain pair takes 10–20 s.</dd>
+  <dt>Output</dt><dd><code>&lt;M&gt;_reg.nii.gz</code>, <code>&lt;seg&gt;_reg.nii.gz</code>, a co-histogram figure, and
+    <code>transform.json</code> (the 4×4 M → F transform in RAS mm). The viewer shows F in red and M in green, before or
+    after.</dd>
+</dl>
+</section>
+
+<section class="widget" id="w-tract_view">
+<h3><span class="sw" style="background:#7d4e57"></span>Tract View <span class="tag browser">browser</span></h3>
+<p>View whole-brain tracts within chosen segments, by direction.</p>
+<p><i>On opening</i> (site served by <code>server.py</code>), it shows the sample subject IXI034, simplified, as a
+demonstration: the input boxes stay empty, the other sections are locked, and the direction tabs and segment opacity
+are hidden. Loading your own tract file replaces the sample and unlocks everything.</p>
+<dl>
+  <dt>Inputs</dt><dd>Tracts (VTK, PLY, TRK, TCK) · Head surface (VTK, PLY; RAS unless tagged) · Segmentation · Tissue names
+    (optional; the sample's 14-tissue names are used until you drop others, or clear them).</dd>
+  <dt>Space</dt><dd>VTK and PLY files carry no coordinate frame unless tagged. <b>Auto</b> picks LPS or RAS, whichever puts the
+    points in the white matter; you can also choose it yourself.</dd>
+  <dt>Segments</dt><dd>With tissue names, segments outside the brain (CSF, scalp, skin, bone, fat, eyes, humour, dura) are
+    left out, and white matter, brainstem (midbrain, pons, medulla) and cerebellum start ticked, as does every segment with an id
+    over 14 (listed whatever its name). Tick the ones to show tracts in:
+    <b>clipped</b> to them, or <b>passing through</b> them.</dd>
+  <dt>Direction</dt><dd>Tabs All / L-R / A-P / S-I / Mixed, each as wide as its share of the tracts.</dd>
+  <dt>Simplify</dt><dd>Drop short tracts (100 mm), thin each bundle to a share (50 %), smooth; healing broken tracts is
+    there to tick (off by default). On by default, so a heavy
+    file never loads in full; untick it to show every streamline.</dd>
+  <dt>Viewer</dt><dd>The tracts in 3D, plus their projection on axial, coronal and sagittal planes (click one panel to move the
+    other two planes), with the head surface around them (smoothed, its lower part fading out; a silhouette on
+    the projections). Opacity of tracts,
+    head surface and segments; how far the head fades out from below (Head fade, 0 = off); line thickness; colour
+    by local direction or by class; Rotate (a slow turn; a drag stops it). For speed the lines are drawn with a point
+    every 2 mm at most (tracking writes one every 0.875 mm; the drawn line stays within about 0.2 mm of it), and a
+    whole-brain set is drawn as every k-th streamline while you drag or zoom, all of them again when you stop. The file
+    and what is saved are not changed.</dd>
+  <dt>Output</dt><dd>The tracts shown, at full detail, as VTK (LPS, tagged) or TRK. The view and a tract / volume info sheet as a PDF or PNG; the sheet gives the simplification as its share
+    ("50% tracts shown"), the page's Info section the full detail.</dd>
+</dl>
+<figure>
+<svg viewBox="0 0 760 120" role="img" aria-labelledby="tv-t">
+  <title id="tv-t">Tract View pipeline</title>
+  <defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 0 L10 5 L0 10 z" fill="var(--muted)"/></marker></defs>
+  <g font-size="12.5">
+    <rect x="6" y="30" width="110" height="56" rx="8" fill="var(--d-data)" stroke="var(--d-data-line)"/>
+    <text x="61" y="54" text-anchor="middle" font-weight="600">Tract file</text>
+    <text x="61" y="72" text-anchor="middle">→ RAS mm</text>
+    <rect x="132" y="30" width="110" height="56" rx="8" fill="var(--d-browser)" stroke="var(--d-browser-line)"/>
+    <text x="187" y="54" text-anchor="middle" font-weight="600">Simplify</text>
+    <text x="187" y="72" text-anchor="middle">(optional)</text>
+    <rect x="258" y="30" width="110" height="56" rx="8" fill="var(--d-browser)" stroke="var(--d-browser-line)"/>
+    <text x="313" y="54" text-anchor="middle" font-weight="600">Label points</text>
+    <text x="313" y="72" text-anchor="middle">segmentation</text>
+    <rect x="384" y="30" width="110" height="56" rx="8" fill="var(--d-browser)" stroke="var(--d-browser-line)"/>
+    <text x="439" y="54" text-anchor="middle" font-weight="600">Crop</text>
+    <text x="439" y="72" text-anchor="middle">ticked segments</text>
+    <rect x="510" y="30" width="110" height="56" rx="8" fill="var(--d-browser)" stroke="var(--d-browser-line)"/>
+    <text x="565" y="54" text-anchor="middle" font-weight="600">Direction</text>
+    <text x="565" y="72" text-anchor="middle">L-R A-P S-I</text>
+    <rect x="636" y="30" width="118" height="56" rx="8" fill="var(--d-server)" stroke="var(--d-server-line)"/>
+    <text x="695" y="54" text-anchor="middle" font-weight="600">Show · Save</text>
+    <text x="695" y="72" text-anchor="middle">3D, PDF, VTK/TRK</text>
+  </g>
+  <g stroke="var(--muted)" stroke-width="2" marker-end="url(#ar2)">
+    <line x1="116" y1="58" x2="130" y2="58"/><line x1="242" y1="58" x2="256" y2="58"/>
+    <line x1="368" y1="58" x2="382" y2="58"/><line x1="494" y1="58" x2="508" y2="58"/>
+    <line x1="620" y1="58" x2="634" y2="58"/>
+  </g>
+</svg>
+<figcaption>Figure 3. Tract View's steps. Changing a control reruns only the steps after it, so ticking a
+segment does not re-simplify.</figcaption>
+</figure>
+</section>
+
+<section class="widget" id="w-dwi_4d">
+<h3><span class="sw" style="background:#8a6d3f"></span>DWI 3D ⇄ 4D <span class="tag browser">browser</span></h3>
+<p>Merge 3D DWI volumes into one 4D NIfTI, or split one into 3D files, choosing the volumes to keep.</p>
+<dl>
+  <dt>Inputs</dt><dd>DWI volumes: several 3D NIfTIs (taken in natural name order, DTI-2 before DTI-10), one 4D NIfTI, or several
+    4D runs · Gradients: one <code>.bval</code> + <code>.bvec</code> (FSL) for all, one pair per file, or an MRtrix
+    table. If the counts disagree, the page says so.</dd>
+  <dt>Choosing</dt><dd>Tick volumes, or whole shells. For b0s: keep all, keep the first, or average them into one. "Reduce each
+    shell to n" keeps the n best-spread directions. A table shows each shell's smallest angle between
+    directions and the tensor-fit condition number (about 1.5 is ideal).</dd>
+  <dt>Viewer</dt><dd><b>Gradients</b> (default): the directions on a sphere, coloured by shell, optionally scaled by √b. Drag to turn
+    it, and click a dot to keep or drop its volume. <b>Axial / Coronal / Sagittal</b>: the picked volume's slices.</dd>
+  <dt>Output</dt><dd>One 4D NIfTI, or 3D files named by a pattern: <code>{name}</code>, <code>{index}</code>,
+    <code>{n}</code> (from 1), <code>{source}</code>, <code>{frame}</code>, <code>{b}</code>, zero-padded as
+    <code>{index:03}</code>. For example, <code>IXI034_dwi-{n:02}_b{b}</code> gives <code>IXI034_dwi-01_b0.nii.gz</code>, and so on.
+    Each comes with the matching <code>.bval</code> / <code>.bvec</code>.</dd>
+</dl>
+</section>
+
+<section class="widget" id="w-tractography">
+<h3><span class="sw" style="background:#5e5486"></span>Tractography <span class="tag server">server</span></h3>
+<p>Track whole-brain streamlines from a DWI series, with the lab's method (PROJ_DCONDNET
+  <code>b6_dti_wholebrain_tractography.py</code>).</p>
+<dl>
+  <dt>Inputs</dt><dd>DWI volumes: one 3D file per gradient (taken in file-name order), or one 4D file · the
+    <code>.bval</code> and <code>.bvec</code> (FSL; told apart by shape) · FA threshold (0.2) · seeds per voxel (1) ·
+    step (0.875 mm) · minimum length (80 mm; the lab's b6 used 20) · brain mask (SynthStrip, the default, with its border, 1 mm; or the lab's b6; b6 when the server has no SynthStrip) · VTK and/or PLY · a simplified copy (on: ≥ 80 mm, 30 % at random, a point every 2 mm; made alike for every subject). Volumes beyond the b-values are left out, as the lab's
+    preprocessing does (IXI's <code>DTI-16</code>, a QC image).</dd>
+  <dt>How</dt><dd>DIPY: a brain mask on the b0, either the lab's (Otsu, dilated 5 %) or SynthStrip's (FreeSurfer's skull
+    stripping; the b6 mask's dilation takes in skull and scalp, whose noise gives a high FA, an outer ring in the tracking
+    mask; SynthStrip leaves it out, and the eyes); a DTI fit (WLS), FA ≥ the threshold as the tracking mask; CSA-ODF
+    peaks (SH order 6); deterministic tracking from seeds over the mask, stopping at its edge; short streamlines dropped; no streamline healed.
+    The page streams the log; an IXI subject takes about 80 s.</dd>
+  <dt>Output</dt><dd><code>&lt;subject&gt;_wb_tracts.vtk</code> (LPS, tagged) and/or <code>.ply</code> (RAS, tagged),
+    <code>&lt;subject&gt;_wb_tracts_simplified.vtk</code> (when ticked), <code>&lt;subject&gt;_brainmask.nii.gz</code>. The
+    viewer shows up to 20,000 of the streamlines in 3D, and the FA map with the tracking mask. Open the tract file in
+    Tract View to explore it.</dd>
+</dl>
+</section>
+
+<section class="widget" id="w-sample_data">
+<h3><span class="sw" style="background:#5c5868"></span>Sample Data <span class="tag browser">browser</span></h3>
+<p>One subject of the public IXI dataset (IXI034), in its study folders, to try every widget with.</p>
+<div class="scroll"><table>
+<thead><tr><th>Folder</th><th>Files</th><th>Try with</th></tr></thead>
+<tbody>
+<tr><td><code>ana/</code></td><td>T1, T2</td><td>Volume Slices, Volume 3D, Resampling, Registration</td></tr>
+<tr><td><code>dwi_processed/</code></td><td>16 DWI volumes (b0 + 15 at b = 1000), <code>IXI034_bval</code>, <code>IXI034_bvec</code></td><td>DWI 3D ⇄ 4D</td></tr>
+<tr><td><code>seg/</code></td><td>14-tissue segmentations (DWI grid, 0.5 mm head model), tissue names, head surface (VTK)</td><td>Volume Slices, Volume 3D, Tract View (head surface, segmentation, names)</td></tr>
+<tr><td><code>tract/</code></td><td>Whole-brain tracts (VTK, LPS)</td><td>Tract View</td></tr>
+</tbody></table></div>
+<p>Download files one by one, or all of them as one zip (needs the site served by <code>server.py</code> or another http
+server).</p>
+</section>
+
+<section class="widget" id="w-demo_brain_aging">
+<h3><span class="sw" style="background:#6b5a7a"></span>Brain Aging Demo <span class="tag browser">browser</span></h3>
+<p>The two typical subjects of Nguyen, Kubota &amp; Hirata, <i>Age-related changes in brain fiber pathways based on
+  directional decomposition of DTI tractograms</i>, Neuroscience Informatics 6 (2026) 100255: IXI051 (25 y) and IXI518
+  (75 y), side by side.</p>
+<dl>
+  <dt>Shows</dt><dd>Six tabs: the tracts in 3D (two views that turn together, a direction bar over each: shares on hover,
+    a click filters both); axial, sagittal and coronal slices of both subjects on one grid (T1 or T2; tracts off, projected
+    or their intersection with the slice; segment boundaries or fill over them; values on hover); and, for the ticked segments (the paper's four tissues at first),
+    the tract density (tracts per cm³) and the direction composition (L-R, A-P, S-I, Mixed) as charts. Only the 3D tab's
+    files load at first; the slices on their first visit.</dd>
+  <dt>Controls</dt><dd>Segments (clipped, passing through, whole head), direction, Tract View's simplification (folded;
+    keep 20 %, ≥ 100 mm at first); per tab its own: underlay, tracts, segments, opacities, thickness. 💾 Save collects
+    the current tab; Export writes the figures as a PDF (one per page, the paper cited at the end), or PNG.</dd>
+  <dt>Data</dt><dd>Built once by <code>demo_brain_aging/prep/build_data.py</code>: tracked in each subject's native space
+    (FA ≥ 0.2, CSA-ODF, deterministic, 30°, 0.5 mm, ≥ 20 mm, whole brain), measured there (pieces ≥ 20 mm inside each
+    segment), and shown in IXI051's b0 space (IXI518 registered affine). Unlike the paper, the whole brain is tracked
+    once and cropped to the ROIs, so the densities are higher than the paper's, in the same order. The full list of
+    differences is on the page and in <code>demo_brain_aging/README.md</code>.</dd>
+</dl>
+</section>
+
+<!-- ======================================================================= -->
+<h2 id="tour">5. A tour with the sample data <a class="back" href="#">↑ top</a></h2>
+<ol class="steps">
+  <li><b>Sample Data</b> → <b>Download all</b>, then unzip <code>IXI034_sample.zip</code>.</li>
+  <li><b>Volume Slices</b>: drop <code>ana/IXI034_t1.nii.gz</code> as the image and <code>seg/IXI034_voxseg.nii.gz</code>
+    as the segmentation, plus <code>seg/IXI034_labels.csv</code>. Hover to read values, then open <b>Export mosaic</b>
+    for a PDF.</li>
+  <li><b>Volume 3D</b>: drop <code>seg/IXI034_voxseg.nii.gz</code> and <code>seg/IXI034_head.vtk</code>; set the head
+    surface's opacity to 0.3 to see the tissues inside.</li>
+  <li><b>DWI 3D ⇄ 4D</b>: drop all of <code>dwi_processed/*.nii.gz</code>, then <code>IXI034_bval</code> and
+    <code>IXI034_bvec</code>. Look at the sphere, try <i>Reduce each shell to 6</i>, then write a 4D NIfTI.</li>
+  <li><b>Tractography</b> (with <code>server.py</code>): drop the same DWI files and gradients, tick PLY too, and press
+    Run (about a minute: 88,196 streamlines). Open the VTK in Tract View.</li>
+  <li><b>Tract View</b>: drop <code>tract/IXI034_wb_tracts.vtk</code>, <code>seg/IXI034_head.vtk</code>,
+    <code>seg/IXI034_seg_match_dwi.nii.gz</code> and <code>seg/IXI034_labels.csv</code>. Click the A-P tab, raise the
+    thickness, then save the tracts or export the view as a PDF.</li>
+  <li><b>Resampling</b>: drop the T1 and choose 1 mm. <b>Registration</b> (with <code>server.py</code>): fixed = T1,
+    moving = T2.</li>
+</ol>
+
+<!-- ======================================================================= -->
+<h2 id="trouble">6. Troubleshooting <a class="back" href="#">↑ top</a></h2>
+<div class="scroll"><table>
+<thead><tr><th>What you see</th><th>Why, and what to do</th></tr></thead>
+<tbody>
+<tr><td>“… needs server.py: start the server …”</td><td>The page was opened from the disk, or the server is down. Start
+  <code>python server.py</code> and open the site from <code>http://…:8001/</code>.</td></tr>
+<tr><td>Port already in use</td><td>Another <code>server.py</code> (or another program) holds the port. Stop it, or start with
+  <code>--port 8002</code>.</td></tr>
+<tr><td>“The DICOM pixel data is compressed …”</td><td>The browser reads only uncompressed DICOM. Choose <b>dcm2niix (server)</b> in
+  DICOM → NIfTI.</td></tr>
+<tr><td>Tracts appear mirrored or off the brain</td><td>The tract file's space was misread. Set <b>Tract space</b> to LPS or RAS
+  yourself.</td></tr>
+<tr><td>“Gradients not used where they disagree”</td><td>The <code>.bval</code>/<code>.bvec</code> has a different number of entries than the
+  volumes (IXI's own tables list 16 for 17 raw volumes). Use a matching table.</td></tr>
+<tr><td>A blank 3D view or “no WebGL2”</td><td>The browser has no hardware graphics (remote desktop, an old browser). Use a
+  current browser on a machine with a GPU.</td></tr>
+<tr><td>A phone is slow with a large file</td><td>Use smaller files on phones, e.g. the simplified sample tractogram (Tract View also
+  simplifies large ones itself).</td></tr>
+</tbody></table></div>
+
+<!-- ======================================================================= -->
+<h2 id="extend">7. Adding a widget <a class="back" href="#">↑ top</a></h2>
+<p>The full rules are in <code>APP_MRI/README.md</code>. In short:</p>
+<ol class="steps">
+  <li>Make a folder <code>APP_MRI/&lt;widget_id&gt;/</code> with <code>index.html</code>, <code>lib/</code> and
+    <code>asset/icon.svg</code>. If it needs Python, add <code>py/app.py</code> exposing <code>build()</code>;
+    <code>server.py</code> mounts it at <code>/py/&lt;widget_id&gt;</code>.</li>
+  <li>Add one entry to <code>common/registry.js</code>, with a one-sentence description and <code>server: true</code> if it cannot run
+    without Python.</li>
+  <li>Put anything a second widget could use in <code>common/</code>.</li>
+  <li>Check the page at 360 px and 768 px wide.</li>
+  <li>Add a section for it to <a href="#widgets">§4</a> of this guide, a row to the table in
+    <a href="#overview">§1</a>, a line to <a href="#history">§8</a>, and an entry to the contents list.</li>
+</ol>
+
+<!-- ======================================================================= -->
+<h2 id="history">8. Document history <a class="back" href="#">↑ top</a></h2>
+<div class="scroll"><table>
+<thead><tr><th>Date</th><th>Change</th></tr></thead>
+<tbody>
+<tr><td>2026-10-23</td><td>First version: deployment, common use, eight widgets (Volume Slices, Volume 3D, DICOM → NIfTI,
+  Resampling, Registration, Tract View, DWI 3D ⇄ 4D, Sample Data).</td></tr>
+<tr><td>2026-10-23</td><td>Tract View: a head surface (VTK / PLY) replaces the volume; segments outside the brain left out of
+  its table. Home page: muted tiles, vivid under the pointer.</td></tr>
+<tr><td>2026-10-23</td><td>Tract View: simplification on by default; 1 px lines; the head surface smoothed and faded below;
+  projections of one height; only white matter, brainstem and cerebellum ticked at first.</td></tr>
+<tr><td>2026-10-27</td><td>Tractography (dMRI, server): whole-brain DIPY tracking from a DWI series, saved as VTK / PLY; the b6 brain mask or SynthStrip's (vendored in <code>tractography/py/synthstrip/</code>).</td></tr>
+<tr><td>2026-10-27</td><td>Tract View, Tractography: lighter drawing (a point every 2 mm at most; every k-th streamline while the view moves); files unchanged.</td></tr>
+<tr><td>2026-10-28</td><td>Tractography: SynthStrip is the default brain mask (b6 when the server has no SynthStrip).</td></tr>
+<tr><td>2026-10-28</td><td>Tractography: a simplified copy, alike for every subject (≥ 80 mm, 30 % at random, 2 mm steps; no healing); <code>tract_simplify.py</code> makes it from a saved VTK; tract files carry direction colours.</td></tr>
+<tr><td>2026-10-28</td><td>Tract View: simplification keeps 50 % of each bundle and no longer heals breaks by default; segments with an id over 14 start ticked.</td></tr>
+<tr><td>2026-10-28</td><td>Tract View: the exported info sheet is shorter (simplification as its share; no Within, Shown, Total length, Field of view).</td></tr>
+<tr><td>2026-10-28</td><td>Brain Aging Demo (Resources): IXI051 vs IXI518, tract density and direction composition per tissue, after Nguyen et al. 2026; shared modules for it: <code>common/js/report.js</code>, <code>savelist.js</code>, <code>chart.js</code>, <code>common/med/linked.js</code>, <code>dirbar.js</code>, <code>tract_select.js</code>, <code>tract_simplify.js</code>.</td></tr>
+</tbody></table></div>
+
+<footer>MRI WLAB · Hirata Laboratory. NITech JP. · This guide: <code>APP_MRI/doc/guide.html</code></footer>
+</main>
+</div>
+</body>
+</html>

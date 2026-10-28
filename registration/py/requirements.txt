@@ -1,0 +1,5 @@
+# registration/py: the SimpleITK registration service (server.py mounts it).
+gradio>=5
+SimpleITK>=2.3
+numpy>=1.24
+matplotlib>=3.7

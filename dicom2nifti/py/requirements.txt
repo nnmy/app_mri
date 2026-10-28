@@ -1,0 +1,4 @@
+# dicom2nifti/py: the server converter. dcm2niix itself is a program, not a
+# Python package: on PATH, or ~/bin/dcm2niix (https://github.com/rordenlab/dcm2niix).
+gradio>=5
+nibabel>=5

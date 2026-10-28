@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#4a6b5d" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+  <!-- A stack of DICOM slices -> one volume. -->
+  <rect x="6" y="22" width="16" height="20" opacity=".55"/>
+  <rect x="10" y="18" width="16" height="20" opacity=".8"/>
+  <rect x="14" y="14" width="16" height="20" fill="#4a6b5d" fill-opacity=".2"/>
+  <path d="M34 32 H44 M40 27 L45 32 L40 37"/>
+  <path d="M48 22 L58 22 L58 44 L48 44 Z M48 22 L52 18 L62 18 L62 40 L58 44 M58 22 L62 18"/>
+</svg>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resampling</title>
+  <link rel="icon" href="../common/img/favicon.svg">
+  <link rel="stylesheet" href="../common/css/base.css">
+  <link rel="stylesheet" href="../common/css/med.css">
+</head>
+<body data-root=".." data-widget="resample">
+  <main class="page">
+    <div class="page-head">
+      <h1>Resampling</h1>
+      <p>Resample volumes to an isotropic voxel size.</p>
+    </div>
+
+    <div class="cols">
+      <div>
+        <section class="sec sec-input">
+          <h2 class="sec-label">Input</h2>
+          <div id="drop"></div>
+          <ul class="md-files" id="inputs"></ul>
+          <div class="row">
+            <span class="ctl-label" data-tip="Isotropic: the same size along x, y and z.">Voxel size (mm)</span>
+            <input type="number" id="voxel" min="0.1" max="10" step="0.1" value="1" aria-label="Voxel size in mm">
+            <span class="ctl-label" data-tip="Auto: nearest neighbour for a label map (integer type, at most 256 values), linear for an image. B-spline: cubic, sharper than linear.">Interpolation</span>
+            <select id="method" aria-label="Interpolation">
+              <option>Auto</option>
+              <option>Nearest</option>
+              <option>Linear</option>
+              <option>B-spline</option>
+            </select>
+          </div>
+          <div class="row">
+            <label class="check" data-tip="Permute and flip the voxel axes to run R, A, S first (no interpolation): the closest canonical orientation.">
+              <input type="checkbox" id="ras" checked> To RAS</label>
+            <span class="grow"></span>
+            <button type="button" class="btn primary" id="btn-run" disabled>Run</button>
+          </div>
+          <div class="status" id="status"></div>
+        </section>
+
+        <section class="sec hidden" id="sec-output">
+          <h2 class="sec-label">Output</h2>
+          <ul class="md-files" id="files"></ul>
+        </section>
+
+        <section class="sec collapsed hidden" id="sec-console">
+          <h2 class="sec-label">Console</h2>
+          <pre class="md-console" id="console"></pre>
+        </section>
+      </div>
+
+      <div>
+        <section class="sec sec-viewer">
+          <h2 class="sec-label">Viewer</h2>
+          <div class="row hidden" id="pick-row">
+            <span class="ctl-label">Show</span>
+            <select id="pick" class="grow" aria-label="Volume to show"></select>
+          </div>
+          <div id="view"></div>
+          <div id="compare"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="../common/registry.js"></script>
+  <script src="../common/js/chrome.js"></script>
+  <script src="../common/js/ui.js"></script>
+  <script src="../common/js/zip.js"></script>
+  <script src="../common/med/volume.js"></script>
+  <script src="../common/med/io.js"></script>
+  <script src="../common/med/io_nifti.js"></script>
+  <script src="../common/med/io_nrrd.js"></script>
+  <script src="../common/med/labels.js"></script>
+  <script src="../common/med/render.js"></script>
+  <script src="../common/med/viewer.js"></script>
+  <script src="../common/med/sliceview.js"></script>
+  <script src="lib/resample.js"></script>
+  <script src="lib/app.js"></script>
+</body>
+</html>
