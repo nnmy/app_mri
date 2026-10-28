@@ -1,0 +1,173 @@
+{
+ "title": "Brain aging: tracts of a younger and an older subject",
+ "paper": {
+  "citation": "M.N. Nguyen, Y. Kubota, A. Hirata, Age-related changes in brain fiber pathways based on directional decomposition of DTI tractograms, Neuroscience Informatics 6 (2026) 100255",
+  "doi": "10.1016/j.neuri.2025.100255"
+ },
+ "reference": "IXI051",
+ "labels": "labels.csv",
+ "groups": {
+  "161718": [
+   16,
+   17,
+   18
+  ]
+ },
+ "rois": [
+  {
+   "id": 13,
+   "name": "Cerebral WM",
+   "color": "#e8930c"
+  },
+  {
+   "id": 4,
+   "name": "Cerebellum",
+   "color": "#1fa34a"
+  },
+  {
+   "id": 15,
+   "name": "Thalamus",
+   "color": "#25b5d9"
+  },
+  {
+   "id": 161718,
+   "name": "Brainstem",
+   "color": "#1f5fb4"
+  }
+ ],
+ "classes": [
+  "L-R",
+  "A-P",
+  "S-I",
+  "Mixed"
+ ],
+ "tau": 0.7,
+ "min_piece_mm": 20,
+ "tracking": {
+  "fa_thr": 0.2,
+  "sh_order": 6,
+  "max_angle_deg": 30,
+  "step_mm": 0.5,
+  "seeds_per_voxel": 1,
+  "min_length_mm": 20,
+  "brain_mask": "SynthStrip, border 1 mm"
+ },
+ "method": {
+  "ours": [
+   "Tracking, each subject in native space: SynthStrip mask, DTI FA ≥ 0.2, CSA-ODF, deterministic (turn ≤ 30°, step 0.5 mm), 1 seed per voxel, streamlines ≥ 20 mm.",
+   "Measures: tracts cropped to each segment (pieces ≥ 20 mm); density = pieces per cm³; direction by the mean unit step, τ = 0.7.",
+   "Display only: IXI518 registered onto IXI051's b0 (affine)."
+  ],
+  "differences": [
+   "Whole-brain tracking, then cropping to the segments (the paper tracked each ROI separately), so densities are higher; their order is the paper's.",
+   "SynthStrip brain mask (the paper: Otsu).",
+   "Two subjects, no group statistics (the paper: 200 subjects)."
+  ]
+ },
+ "subjects": [
+  {
+   "key": "young",
+   "id": "IXI051",
+   "stem": "IXI051-HH-1328",
+   "age": 25,
+   "age_exact": 25.7,
+   "sex": "F",
+   "brain_volume_cm3": 1365.0,
+   "files": {
+    "tracts": "IXI051/tracts.dba.gz",
+    "seg_native": "IXI051/seg_native.nii.gz",
+    "seg": "IXI051/seg.nii.gz",
+    "t1": "IXI051/t1.nii.gz",
+    "t2": "IXI051/t2.nii.gz",
+    "head": "IXI051/head.vtk"
+   },
+   "native_to_common": [
+    [
+     1.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     1.0,
+     0.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     1.0,
+     0.0
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "tracking": {
+    "seeds": 153127,
+    "tracked": 308657,
+    "streamlines": 123647,
+    "brain_voxels": 243682,
+    "tracking_voxels": 153127,
+    "stored_points": 8187005
+   }
+  },
+  {
+   "key": "old",
+   "id": "IXI518",
+   "stem": "IXI518-HH-2239",
+   "age": 75,
+   "age_exact": 75.8,
+   "sex": "F",
+   "brain_volume_cm3": 1041.0,
+   "files": {
+    "tracts": "IXI518/tracts.dba.gz",
+    "seg_native": "IXI518/seg_native.nii.gz",
+    "seg": "IXI518/seg.nii.gz",
+    "t1": "IXI518/t1.nii.gz",
+    "t2": "IXI518/t2.nii.gz",
+    "head": "IXI518/head.vtk"
+   },
+   "native_to_common": [
+    [
+     1.047076,
+     -0.081808,
+     0.106176,
+     -8.620533
+    ],
+    [
+     0.006225,
+     1.08056,
+     -0.03129,
+     2.651099
+    ],
+    [
+     -0.121601,
+     0.030308,
+     1.034466,
+     4.064869
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ]
+   ],
+   "tracking": {
+    "seeds": 112993,
+    "tracked": 208628,
+    "streamlines": 75487,
+    "brain_voxels": 216505,
+    "tracking_voxels": 112993,
+    "stored_points": 4762088
+   }
+  }
+ ],
+ "built": "2026-10-28 11:41",
+ "measures": "measures.csv"
+}
