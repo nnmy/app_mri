@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#6b5a7a" stroke-linecap="round" stroke-width="2.6">
+  <!-- Two brains: the younger full of tracts, the older with fewer, fainter ones. -->
+  <path d="M5 33 C5 22 12 15 20 15 C28 15 33 22 33 32 C33 42 27 48 19 48 C11 48 5 42 5 33 Z" opacity=".45"/>
+  <path d="M9 37 C14 30 21 28 29 25"/>
+  <path d="M9 31 C15 27 22 27 29 30"/>
+  <path d="M11 42 C16 36 23 34 29 36"/>
+  <path d="M35 33 C35 24 40 18 47 18 C54 18 59 24 59 32 C59 41 54 46 47 46 C40 46 35 41 35 33 Z" opacity=".45"/>
+  <path d="M39 35 C44 30 49 29 55 27" opacity=".7"/>
+  <path d="M41 40 C45 36 50 35 55 36" opacity=".4"/>
+</svg>

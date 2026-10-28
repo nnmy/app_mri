@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brain Aging Tracts</title>
+  <link rel="icon" href="../common/img/favicon.svg">
+  <link rel="stylesheet" href="../common/css/base.css">
+  <link rel="stylesheet" href="../common/css/med.css">
+  <link rel="stylesheet" href="lib/demo.css">
+</head>
+<body data-root=".." data-widget="demo_brain_aging">
+  <main class="page">
+    <div class="page-head">
+      <h1>Brain Aging: Tracts of a Younger and an Older Subject</h1>
+      <p>Demonstration for a study by My N. Nguyen, Y. Kubota &amp; A. Hirata, <i>Neuroscience Informatics</i> 6 (2026) 100255
+        (<a href="https://doi.org/10.1016/j.neuri.2025.100255" target="_blank" rel="noopener">doi</a>).</p>
+    </div>
+
+    <div class="cols db-cols">
+      <!-- ================= left: segments; simplification and method folded ================= -->
+      <div>
+        <section class="sec" id="sec-segments">
+          <h2 class="sec-label">Segments <span class="sec-aside">tracts/cm³</span></h2>
+          <div class="row">
+            <button type="button" class="btn small" id="seg-all">All</button>
+            <button type="button" class="btn small" id="seg-none">None</button>
+            <span class="grow"></span>
+            <select id="crop" aria-label="Which part of the tracts" data-tip="Clipped: the tract pieces (≥ 20 mm) inside the ticked segments, as the paper counts them.">
+              <option value="clip">Clipped to segments</option>
+              <option value="pass">Passing through</option>
+              <option value="all">Whole head</option>
+            </select>
+          </div>
+          <div class="md-segtable db-segtable" id="seg-table"></div>
+        </section>
+
+        <section class="sec collapsed">
+          <h2 class="sec-label">Simplification <span class="sec-aside" id="simplify-aside"></span></h2>
+          <label class="check" data-tip="The same for both subjects; for viewing only (the numbers use every streamline).">
+            <input type="checkbox" id="simplify" checked> Simplify the tracts</label>
+          <div id="simplify-controls">
+            <div class="row">
+              <label class="check"><input type="checkbox" id="heal"> Heal breaks</label>
+              <span class="ctl-label">gap</span>
+              <input type="number" id="heal-gap" min="0.5" max="5" step="0.5" value="2" aria-label="Heal gap in mm"><span class="hint">mm</span>
+              <span class="ctl-label">angle</span>
+              <input type="number" id="heal-angle" min="10" max="90" step="5" value="45" aria-label="Heal angle in degrees"><span class="hint">°</span>
+            </div>
+            <div class="db-sliders">
+              <label>Min length <span class="mono" id="minlen-val"></span>
+                <input type="range" id="minlen" min="20" max="200" step="5" value="100"></label>
+              <label data-tip="Share of each bundle kept.">Keep <span class="mono" id="keep-val"></span>
+                <input type="range" id="keep" min="1" max="100" step="1" value="20"></label>
+              <label>Smoothing <span class="mono" id="smooth-val"></span>
+                <input type="range" id="smooth" min="0" max="3" step="0.25" value="1.5"></label>
+            </div>
+            <div class="hint" id="simplify-summary"></div>
+          </div>
+        </section>
+
+        <section class="sec collapsed" id="sec-method">
+          <h2 class="sec-label">Method, and differences from the paper</h2>
+          <div id="method" class="db-method"></div>
+        </section>
+      </div>
+
+      <!-- ================= right: the viewer, its controls, the saved figures ================= -->
+      <div>
+        <section class="sec sec-viewer">
+          <h2 class="sec-label">Viewer</h2>
+          <div class="row db-viewbar">
+            <div id="view-tabs"></div>
+            <span class="grow"></span>
+            <button type="button" class="btn small" id="btn-reset" data-show="3d" data-tip="Back to the left side view.">Reset</button>
+            <button type="button" class="btn small" id="btn-save" data-tip="Add this tab, both subjects, to the saved figures.">💾 Save</button>
+          </div>
+          <div class="row db-toolbar">
+            <span class="ctl-label" data-show="2d 3d density" data-tip="By the mean direction of each tract (the paper's τ = 0.7).">Direction</span>
+            <select id="dir" data-show="2d 3d density" aria-label="Direction class">
+              <option value="all">All</option>
+              <option value="0">L-R</option>
+              <option value="1">A-P</option>
+              <option value="2">S-I</option>
+              <option value="3">Mixed</option>
+            </select>
+            <span class="ctl-label" data-show="2d">Image</span>
+            <select id="underlay" data-show="2d" aria-label="Underlay">
+              <option value="t1">T1</option>
+              <option value="t2">T2</option>
+              <option value="none">None</option>
+            </select>
+            <span class="ctl-label" data-show="2d" data-tip="Projected: every tract flattened onto the slice. Intersection: only where the tracts cross this slice.">Tracts</span>
+            <select id="overlay" data-show="2d" aria-label="Tracts on the slices">
+              <option value="none">Off</option>
+              <option value="proj">Projected</option>
+              <option value="slice">Intersection</option>
+            </select>
+            <span class="grow"></span>
+            <details class="db-more-ctl" data-show="2d 3d">
+              <summary>More</summary>
+              <div class="db-opacity">
+                <label class="check" data-show="3d"><input type="checkbox" id="age-labels" checked> Age labels</label>
+                <label data-show="3d">Colour <select id="colour" aria-label="Tract colour">
+                  <option value="local">Local direction</option>
+                  <option value="class">Direction class</option>
+                </select></label>
+                <label>Tracts <span class="mono" id="op-tracts-val"></span><input type="range" id="op-tracts" min="0" max="1" step="0.05" value="0.8"></label>
+                <label>Thickness <span class="mono" id="thick-val"></span><input type="range" id="thick" min="1" max="6" step="0.5" value="1"></label>
+                <label data-show="2d">Segments <span class="mono" id="seg-show-val"></span><input type="range" id="seg-show" min="0" max="4" step="1" value="1"></label>
+                <label data-show="3d">Segments <span class="mono" id="op-seg-val"></span><input type="range" id="op-seg" min="0" max="1" step="0.05" value="0"></label>
+                <label data-show="3d">Head <span class="mono" id="op-head-val"></span><input type="range" id="op-head" min="0" max="1" step="0.05" value="0.12"></label>
+              </div>
+            </details>
+          </div>
+
+          <div class="status" id="status"></div>
+
+          <div id="pane-2d" class="hidden"><div id="slices"></div></div>
+
+          <div id="pane-3d">
+            <div class="db-pair">
+              <div class="db-side" data-key="0">
+                <div class="db-side-head" id="head3d-0"></div>
+                <div id="dirbar-0"></div>
+                <div class="md-stage db-stage"><div class="db-age" id="age-0"><span></span><button type="button" class="db-age-x" aria-label="Hide the age labels" title="Hide">×</button></div><canvas id="gl-0" class="md-gl" aria-label="3D view, first subject"></canvas>
+                  <canvas id="gizmo-0" class="md-gizmo" aria-hidden="true"></canvas></div>
+              </div>
+              <div class="db-side" data-key="1">
+                <div class="db-side-head" id="head3d-1"></div>
+                <div id="dirbar-1"></div>
+                <div class="md-stage db-stage"><div class="db-age" id="age-1"><span></span><button type="button" class="db-age-x" aria-label="Hide the age labels" title="Hide">×</button></div><canvas id="gl-1" class="md-gl" aria-label="3D view, second subject"></canvas>
+                  <canvas id="gizmo-1" class="md-gizmo" aria-hidden="true"></canvas></div>
+              </div>
+            </div>
+            <p class="hint">Drag: rotate · right-drag: pan · wheel: zoom (both together) · double-click: reset</p>
+          </div>
+
+          <div id="pane-chart" class="hidden"><canvas id="chart" class="db-chart"></canvas></div>
+
+          <div id="saved" class="hidden"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="../common/registry.js"></script>
+  <script src="../common/js/chrome.js"></script>
+  <script src="../common/js/ui.js"></script>
+  <script src="../common/js/zip.js"></script>
+  <script src="../common/js/pdf.js"></script>
+  <script src="../common/js/report.js"></script>
+  <script src="../common/js/savelist.js"></script>
+  <script src="../common/js/chart.js"></script>
+  <script src="../common/js/scrollpad.js"></script>
+  <script src="../common/med/volume.js"></script>
+  <script src="../common/med/io.js"></script>
+  <script src="../common/med/io_nifti.js"></script>
+  <script src="../common/med/io_vtk.js"></script>
+  <script src="../common/med/labels.js"></script>
+  <script src="../common/med/render.js"></script>
+  <script src="../common/med/viewer.js"></script>
+  <script src="../common/med/sliceview.js"></script>
+  <script src="../common/med/surface.js"></script>
+  <script src="../common/med/gl3d.js"></script>
+  <script src="../common/med/linked.js"></script>
+  <script src="../common/med/tracts.js"></script>
+  <script src="../common/med/tract_simplify.js"></script>
+  <script src="../common/med/tract_select.js"></script>
+  <script src="../common/med/dirbar.js"></script>
+  <script src="lib/data.js"></script>
+  <script src="lib/app.js"></script>
+</body>
+</html>

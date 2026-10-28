@@ -1,0 +1,49 @@
+/* ============================================================================
+ * demo_brain_aging/lib/demo.css — the demo's own look: the segment table's
+ * two subject columns, the age labels, the viewer's toolbar, the two 3D
+ * views side by side
+ * ========================================================================== */
+.db-cols { grid-template-columns: minmax(320px, 2fr) minmax(0, 3fr); }
+.db-cols > div { min-width: 0; }
+@media (max-width: 900px) { .db-cols { grid-template-columns: 1fr; } }
+
+.db-segtable table { font-size: .82rem; }
+.db-segtable td:nth-child(n+4), .db-segtable th:nth-child(n+4) { text-align: right; font-variant-numeric: tabular-nums; }
+.db-segtable tr.member td.name { padding-left: 18px; }
+.db-segtable tr.off td { opacity: .55; }
+
+.db-sliders { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 12px; }
+.db-sliders label, .db-opacity label { display: flex; flex-direction: column; font-size: .8rem; gap: 2px; }
+.db-opacity { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px; }
+.db-opacity label { min-width: 120px; flex: 1 1 120px; }
+.db-opacity input[type="range"], .db-sliders input[type="range"] { width: 100%; }
+
+.db-method ul { margin: 4px 0 8px 18px; padding: 0; font-size: .84rem; }
+.db-method li { margin: 2px 0; }
+.db-method p { margin: 6px 0 2px; font-size: .86rem; }
+
+.db-viewbar { align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
+.db-toolbar { flex-wrap: wrap; gap: 6px 10px; margin-bottom: 8px; min-height: 30px; }
+.db-more-ctl summary { cursor: pointer; font-size: .85rem; color: var(--fg-2); }
+.db-more-ctl[open] { flex-basis: 100%; }
+.db-more-ctl[open] summary { margin-bottom: 4px; }
+
+.db-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.db-side { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.db-side-head { font-size: .9rem; }
+.db-stage { height: 52vh; min-height: 300px; margin-top: 0; }
+@media (max-width: 700px) {
+  .db-pair { grid-template-columns: 1fr; }
+  .db-sliders { grid-template-columns: 1fr; }
+  .db-stage { height: 46vh; min-height: 260px; }
+}
+
+.db-chart { display: block; width: 100%; border: 1px solid var(--line); border-radius: 6px; }
+
+.db-age { position: absolute; top: 8px; left: 10px; z-index: 2; display: flex; align-items: center; gap: 6px;
+          font-size: 1.5rem; font-weight: 700; color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, .8); pointer-events: none; }
+.db-age-x { pointer-events: auto; width: 22px; height: 22px; padding: 0; border: 0; border-radius: 50%; line-height: 20px;
+            font-size: 1rem; background: rgba(255, 255, 255, .18); color: #fff; cursor: pointer; opacity: 0; transition: opacity .15s; }
+.md-stage:hover .db-age-x, .db-age-x:focus { opacity: 1; }
+@media (pointer: coarse) { .db-age-x { opacity: .8; } }
+.sec-viewer > .status:empty { min-height: 0; }
