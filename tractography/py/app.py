@@ -211,7 +211,24 @@ def synthstrip_status():
     return _probed
 
 
+def _join_model_parts():
+    """The weights are stored as synthstrip.1.pt.NN.part (GitHub's 25 MB limit);
+    concatenate them back into synthstrip.1.pt when it is missing."""
+    if SYNTHSTRIP_MODEL.is_file():
+        return
+    parts = sorted(SYNTHSTRIP_MODEL.parent.glob(SYNTHSTRIP_MODEL.name + ".*.part"))
+    if not parts:
+        return
+    tmp = SYNTHSTRIP_MODEL.with_suffix(".pt.tmp")
+    with open(tmp, "wb") as out:
+        for part in parts:
+            with open(part, "rb") as src:
+                shutil.copyfileobj(src, out)
+    tmp.replace(SYNTHSTRIP_MODEL)
+
+
 def _probe():
+    _join_model_parts()
     for path, what in ((SYNTHSTRIP_PYTHON, "SynthStrip's Python"), (SYNTHSTRIP_SCRIPT, "the SynthStrip script"),
                        (SYNTHSTRIP_MODEL, "the SynthStrip weights")):
         if not Path(path).is_file():
