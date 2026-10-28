@@ -1,0 +1,270 @@
+/* ============================================================================
+ * common/css/base.css — the look every page shares
+ * ----------------------------------------------------------------------------
+ * Colour tokens (light, dark), type, the navbar and footer (chrome.js), the
+ * section boxes, buttons, form controls and drop zones. A widget's own
+ * stylesheet uses these tokens and never hard-codes a theme colour.
+ *
+ * Theme: the system's preference decides; <html data-theme="light|dark">
+ * forces one.
+ * ========================================================================== */
+:root {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface-2: #eef0f3;
+  --fg: #111827;
+  --fg-2: #4b5563;
+  --muted: #6b7280;
+  --line: #d1d5db;
+  --line-strong: #111827;
+  --accent: #f97316;
+  --accent-fg: #ffffff;
+  --accent-soft: #ffedd5;
+  --link: #2563eb;
+  --danger: #dc2626;
+  --ok: #16a34a;
+  --nav-bg: #1f2937;
+  --nav-fg: #f9fafb;
+  --nav-muted: #9ca3af;
+  --tip-bg: #fde3cf;
+  --tip-fg: #1f2937;
+  --shadow: 0 2px 6px rgba(0, 0, 0, .12);
+  --radius: 8px;
+  --mono: ui-monospace, "DejaVu Sans Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans JP", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1115;
+    --surface: #171a21;
+    --surface-2: #20242d;
+    --fg: #e5e7eb;
+    --fg-2: #c4c8cf;
+    --muted: #9ca3af;
+    --line: #374151;
+    --line-strong: #e5e7eb;
+    --accent: #fb923c;
+    --accent-fg: #111827;
+    --accent-soft: #3b2414;
+    --link: #60a5fa;
+    --danger: #f87171;
+    --ok: #4ade80;
+    --nav-bg: #0b0d11;
+    --nav-fg: #f3f4f6;
+    --nav-muted: #9ca3af;
+    --tip-bg: #3b2a1e;
+    --tip-fg: #f3f4f6;
+    --shadow: 0 2px 8px rgba(0, 0, 0, .5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1115;
+  --surface: #171a21;
+  --surface-2: #20242d;
+  --fg: #e5e7eb;
+  --fg-2: #c4c8cf;
+  --muted: #9ca3af;
+  --line: #374151;
+  --line-strong: #e5e7eb;
+  --accent: #fb923c;
+  --accent-fg: #111827;
+  --accent-soft: #3b2414;
+  --link: #60a5fa;
+  --danger: #f87171;
+  --ok: #4ade80;
+  --nav-bg: #0b0d11;
+  --nav-fg: #f3f4f6;
+  --nav-muted: #9ca3af;
+  --tip-bg: #3b2a1e;
+  --tip-fg: #f3f4f6;
+  --shadow: 0 2px 8px rgba(0, 0, 0, .5);
+  color-scheme: dark;
+}
+
+/* --- Base ----------------------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  min-height: 100vh; display: flex; flex-direction: column;
+  background: var(--bg); color: var(--fg);
+  font: 14px/1.45 var(--sans);
+}
+a { color: var(--link); }
+code, kbd { font-family: var(--mono); font-size: .92em; }
+.page { flex: 1 0 auto; width: 100%; max-width: 1680px; margin: 0 auto; padding: 16px; }
+.hidden { display: none !important; }
+.muted { color: var(--muted); }
+.mono { font-family: var(--mono); }
+
+/* --- Navbar (chrome.js) ---------------------------------------------------- */
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+  padding: 0 16px; min-height: 48px;
+  background: var(--nav-bg); color: var(--nav-fg);
+}
+.nav a { color: inherit; text-decoration: none; }
+.nav-brand { display: flex; align-items: center; gap: 8px; margin-right: 12px;
+             font-weight: 700; letter-spacing: .02em; }
+.nav-brand img { width: 22px; height: 22px; }
+.nav-link, .nav-menu > button {
+  display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px;
+  border: 0; border-radius: 6px; background: none; color: var(--nav-muted);
+  font: inherit; cursor: pointer;
+}
+.nav-link:hover, .nav-menu > button:hover, .nav-link.current { color: var(--nav-fg);
+  background: rgba(255, 255, 255, .08); }
+.nav-spacer { flex: 1; }
+.nav-menu { position: relative; }
+.nav-drop {
+  position: absolute; top: calc(100% + 4px); left: 0; min-width: 260px; padding: 6px;
+  background: var(--surface); color: var(--fg); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow); display: none;
+}
+.nav-menu.open .nav-drop { display: block; }
+.nav-drop h4 { margin: 6px 8px 2px; font-size: 11px; text-transform: uppercase;
+               letter-spacing: .06em; color: var(--muted); }
+.nav-drop a { display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+              border-radius: 6px; color: var(--fg); }
+.nav-drop a:hover { background: var(--surface-2); }
+.nav-drop a.current { font-weight: 600; }
+.nav-drop .sw { width: 12px; height: 12px; border-radius: 2px; flex: none; }
+
+/* --- Footer (chrome.js) ---------------------------------------------------- */
+.footer { flex: none; padding: 14px 16px; border-top: 1px solid var(--line);
+          color: var(--muted); font-size: 12px; text-align: center; }
+.footer a { color: inherit; }
+
+/* --- Page head --------------------------------------------------------------- */
+.page-head { margin: 4px 0 14px; }
+.page-head h1 { margin: 0 0 2px; font-size: 1.5rem; font-weight: 700; }
+.page-head p { margin: 0; color: var(--muted); font-size: .9rem; max-width: 110ch; }
+
+/* --- Sections -------------------------------------------------------------- */
+.sec {
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface);
+  padding: 10px 12px 12px; margin-bottom: 12px; min-width: 0;
+}
+.sec > .sec-label {
+  margin: 0 0 8px; font-size: 1.05rem; font-weight: 700; cursor: pointer; user-select: none;
+  display: flex; align-items: center; gap: 8px;
+}
+.sec > .sec-label::after { content: "\25BE"; font-weight: 400; font-size: .8em; color: var(--muted); }
+.sec.collapsed > .sec-label::after { content: "\25B8"; }
+.sec.collapsed > .sec-label { margin-bottom: 0; }
+.sec.collapsed > :not(.sec-label) { display: none !important; }
+.sec-label .sec-aside { margin-left: auto; font-size: .8rem; font-weight: 400; color: var(--muted); order: 2; }
+.sec.sec-input { border: 2px solid var(--accent); }
+.sec.sec-viewer { border: 1px solid var(--line-strong); }
+
+/* Two columns: input left, viewer right (stacked when narrow). */
+.cols { display: grid; grid-template-columns: minmax(300px, 2fr) minmax(0, 3fr); gap: 12px;
+        align-items: start; }
+.cols > * { min-width: 0; }
+@media (max-width: 960px) { .cols { grid-template-columns: 1fr; } }
+
+/* --- Controls -------------------------------------------------------------- */
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.row + .row { margin-top: 8px; }
+.grow { flex: 1 1 auto; min-width: 0; }
+.ctl-label { font-size: .9rem; font-weight: 500; white-space: nowrap; }
+.hint { font-size: .78rem; color: var(--muted); }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  height: 32px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--line);
+  background: var(--surface-2); color: var(--fg); font: inherit; cursor: pointer; white-space: nowrap;
+}
+.btn:hover { border-color: var(--muted); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); font-weight: 600; }
+.btn.small { height: 26px; padding: 0 8px; font-size: .82rem; }
+.btn.link { background: none; border: none; color: var(--link); padding: 0 4px; height: auto; }
+
+input[type="number"], input[type="text"], select {
+  height: 30px; padding: 0 8px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--surface); color: var(--fg); font: inherit; min-width: 0;
+}
+input[type="number"] { width: 84px; }
+input[type="range"] { accent-color: var(--accent); }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); }
+label.check { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
+
+/* A radio group drawn as a tab strip; the chosen one underlined in the accent. */
+.tabs { display: flex; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.tabs button {
+  border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; background: none;
+  padding: 6px 12px; font: inherit; color: var(--muted); cursor: pointer; white-space: nowrap;
+}
+.tabs button:hover { color: var(--fg); }
+.tabs button.on { border-bottom-color: var(--accent); color: var(--fg); font-weight: 600; }
+
+/* --- Drop zones (Viz.ui.dropZone) ------------------------------------------ */
+.drop {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; min-height: 76px; padding: 8px 22px; text-align: center;
+  border: 1px dashed var(--line-strong); border-radius: 6px; cursor: pointer; background: var(--surface);
+}
+.drop:hover, .drop.over { border-style: solid; background: var(--accent-soft); }
+.drop .drop-title { font-weight: 600; }
+.drop .drop-sub { font-size: .78rem; color: var(--muted); }
+.drop.has .drop-sub { color: var(--fg-2); }
+.drop input[type="file"] { display: none; }
+.drop .drop-x {
+  position: absolute; top: 4px; right: 6px; border: 0; background: none; color: var(--muted);
+  font-size: 1.1rem; line-height: 1; cursor: pointer; padding: 2px 4px; border-radius: 4px; display: none;
+}
+.drop.has .drop-x { display: block; }
+.drop .drop-x:hover { color: var(--fg); background: var(--surface-2); }
+.req::after { content: "*"; margin-left: 2px; color: var(--accent); font-weight: 700; }
+
+/* --- Tooltips (Viz.ui, data-tip) ------------------------------------------- */
+[data-tip] { cursor: help; }
+.tip {
+  position: fixed; z-index: 1000; max-width: 380px; padding: 5px 9px; border-radius: 6px;
+  font-size: .78rem; line-height: 1.35; pointer-events: none;
+  background: var(--tip-bg); color: var(--tip-fg); box-shadow: var(--shadow);
+}
+
+/* --- Tables, status, toast ------------------------------------------------- */
+table.kv { border-collapse: collapse; font-size: .82rem; width: 100%; }
+table.kv td { padding: 2px 8px 2px 0; vertical-align: top; }
+table.kv td:first-child { color: var(--muted); white-space: nowrap; width: 1%; }
+.status { font-size: .85rem; min-height: 1.4em; }
+.status.err { color: var(--danger); }
+.status.ok { color: var(--ok); }
+.busy::before {
+  content: ""; display: inline-block; width: .9em; height: .9em; margin-right: 6px; vertical-align: -.1em;
+  border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.toast {
+  position: fixed; right: 16px; bottom: 16px; z-index: 1001; max-width: 420px; padding: 10px 14px;
+  border-radius: var(--radius); background: var(--surface); color: var(--fg);
+  border: 1px solid var(--line); box-shadow: var(--shadow); font-size: .88rem;
+}
+.toast.err { border-color: var(--danger); }
+
+@media (max-width: 600px) {
+  .page { padding: 12px 16px; }
+  .nav { padding: 0 12px; flex-wrap: nowrap; }
+  .nav-brand { margin-right: 4px; }
+  .nav-here { display: none; }                   /* the page title says it */
+  .nav-drop { position: fixed; top: 48px; left: 8px; right: 8px; min-width: 0;
+              max-height: calc(100vh - 64px); overflow-y: auto; }
+  .nav-drop a { padding: 10px 8px; }             /* finger-sized */
+  /* Under 16 px, iOS Safari zooms the page in when a field is tapped. */
+  input[type="text"], input[type="number"], select, textarea { font-size: 16px; }
+  .btn { min-height: 36px; }
+  .toast { left: 16px; right: 16px; max-width: none; }
+}
+
+/* --- Floating scroll buttons over a viewer (common/js/scrollpad.js) ---------- */
+.scrollpad { position: fixed; right: 12px; bottom: 16px; z-index: 900; display: flex; flex-direction: column; gap: 8px; }
+.scrollpad button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 50%;
+                    border: 1px solid var(--line); background: var(--surface); color: var(--fg);
+                    box-shadow: var(--shadow); opacity: .92; cursor: pointer; }
+.scrollpad button:active { background: var(--surface-2); }

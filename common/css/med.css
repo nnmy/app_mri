@@ -1,0 +1,165 @@
+/* ============================================================================
+ * common/css/med.css — the imaging widgets' shared look
+ * ----------------------------------------------------------------------------
+ * What common/css/base.css does not have and every imaging page uses: upload
+ * rows, the slice panels (common/med/viewer.js) and their crosshair, the
+ * segment table, notes and metadata tables, the slice strip, compact forms
+ * and image previews. Prefix md-.
+ * ========================================================================== */
+
+/* --- Input ------------------------------------------------------------------ */
+.md-drops { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.md-lut.drop { min-height: 32px; flex-direction: row; gap: 8px; padding: 4px 26px 4px 10px; }
+.md-lut .drop-title { font-weight: 500; font-size: .85rem; }
+
+/* --- Viewer controls -------------------------------------------------------- */
+.md-controls { margin: 8px 0 4px; }
+.md-controls .row + .row { margin-top: 6px; }
+.md-slicebar { display: flex; align-items: center; gap: 8px; margin: 8px 0 6px; }
+.md-slicebar input[type="number"] { width: 72px; }
+.md-slicebar .hint { white-space: nowrap; }
+
+/* --- Panels (viewer.js) ----------------------------------------------------- */
+.md-canvas { outline: none; min-height: 120px; }
+.md-canvas:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.md-grid { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-start; }
+.md-wrap { position: relative; display: inline-block; line-height: 0; }
+canvas.md-slice {
+  display: block; image-rendering: pixelated; image-rendering: crisp-edges;
+  cursor: crosshair; background: #000;
+  /* An outline, not a border: it takes no room, so the canvas's box is
+     exactly its pixels and the cursor -> pixel arithmetic stays exact. */
+  outline: 1px solid var(--line);
+}
+.md-tag { position: absolute; top: 5px; left: 7px; z-index: 1; pointer-events: none; color: #fff;
+          line-height: 1; font: 600 13px var(--sans); text-shadow: 0 0 3px #000, 0 0 2px #000; }
+.md-ori { position: absolute; z-index: 1; pointer-events: none; color: #fbbf24; line-height: 1;
+          font: 600 11px var(--sans); text-shadow: 0 0 3px #000; }
+.md-ori.t { top: 5px; left: 50%; transform: translateX(-50%); }
+.md-ori.b { bottom: 5px; left: 50%; transform: translateX(-50%); }
+.md-ori.l { left: 6px; top: 50%; transform: translateY(-50%); }
+.md-ori.r { right: 6px; top: 50%; transform: translateY(-50%); }
+.md-cross { position: absolute; pointer-events: none; display: none; background: rgba(255, 255, 255, .55); }
+.md-h { left: 0; right: 0; height: 1px; }
+.md-v { top: 0; bottom: 0; width: 1px; }
+.md-linked .md-cross { background: #ff2d55; }
+.md-tip { position: absolute; pointer-events: none; display: none; z-index: 2; white-space: nowrap;
+          padding: 2px 6px; border-radius: 4px; font: 600 12px/1.35 var(--mono);
+          color: #fff; background: rgba(17, 24, 39, .85); }
+.md-linked .md-tip { background: rgba(255, 45, 85, .92); }
+.md-locked .md-cross { background: rgba(255, 255, 255, .9); }
+.md-locked .md-linked .md-cross { background: #ff2d55; }
+.md-lock { position: absolute; pointer-events: none; display: none; z-index: 2; width: 16px; height: 16px;
+           line-height: 0; color: #facc15; filter: drop-shadow(0 0 2px #000) drop-shadow(0 0 1px #000); }
+.md-lock svg { width: 100%; height: 100%; }
+.md-empty { padding: 48px 24px; color: var(--muted); text-align: center; line-height: 1.5;
+            border: 1px dashed var(--line); border-radius: 8px; }
+.md-readout { min-height: 1.5em; margin-top: 6px; font-size: .8rem; color: var(--fg-2); overflow-wrap: anywhere; }
+.md-readout b { color: var(--fg); font-weight: 600; }
+
+/* Which slices hold the highlighted segment. */
+.md-strip { margin: 0 0 8px; font-size: .75rem; color: var(--fg-2); }
+.md-strip svg { display: block; width: 100%; height: 14px; cursor: pointer; }
+.md-strip-ticks { display: flex; justify-content: space-between; color: var(--muted); }
+
+/* --- Segment table ---------------------------------------------------------- */
+.md-segtable { max-height: 420px; overflow: auto; margin-top: 8px; border-top: 1px solid var(--line); }
+.md-segtable table { border-collapse: collapse; width: 100%; font-size: .82rem; }
+.md-segtable th, .md-segtable td { padding: 3px 6px; text-align: right; white-space: nowrap; }
+.md-segtable th { position: sticky; top: 0; background: var(--surface); border-bottom: 1px solid var(--line);
+                  font-weight: 600; z-index: 1; }
+.md-segtable th:nth-child(-n+3), .md-segtable td:nth-child(-n+3) { text-align: left; }
+.md-segtable td.name { cursor: pointer; white-space: normal; width: 100%; }
+.md-segtable td.name:hover { color: var(--link); }
+.md-segtable tr.focus td { background: rgba(236, 72, 153, .14); }
+.md-segtable tr.focus td.name { color: #db2777; font-weight: 600; }
+.md-segtable tr.off td:not(:first-child) { opacity: .45; }
+.md-sw { display: inline-block; width: .85em; height: .85em; border: 1px solid #0003; vertical-align: -.1em;
+         border-radius: 2px; }
+.md-notes { margin: 8px 0 0; padding-left: 18px; font-size: .8rem; color: var(--fg-2); }
+.md-notes li + li { margin-top: 2px; }
+.md-details h3 { margin: 10px 0 4px; font-size: .9rem; }
+.md-details h3:first-child { margin-top: 0; }
+
+/* --- Mosaic form ------------------------------------------------------------ */
+.md-form { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px 12px;
+           margin-bottom: 10px; }
+.md-form label { display: flex; flex-direction: column; gap: 3px; font-size: .82rem; font-weight: 500; }
+.md-form label select, .md-form label input { width: 100%; }
+.md-form .md-wide { grid-column: 1 / -1; }
+.md-preview { margin-top: 10px; overflow: auto; max-height: 70vh; border: 1px solid var(--line);
+              border-radius: 6px; background: #000; }
+.md-preview canvas { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+
+@media (max-width: 600px) {
+  .md-drops { grid-template-columns: 1fr; }
+}
+
+/* --- Brightness / contrast, export grid -------------------------------------- */
+input.md-bc { width: 110px; }
+.md-grid-in { display: flex; align-items: center; gap: 6px; }
+.md-grid-in input[type="number"] { width: 64px; }
+
+/* --- Processing pages: slice view, outputs, console, series table ----------- */
+.md-sv-tabs { margin-bottom: 2px; }
+.md-preview-view { margin-top: 12px; }
+.md-files { list-style: none; margin: 6px 0 0; padding: 0; font-size: .85rem; }
+.md-files li { display: flex; align-items: baseline; gap: 8px; padding: 3px 0; border-bottom: 1px solid var(--line); }
+.md-files li:last-child { border-bottom: 0; }
+.md-files a { overflow-wrap: anywhere; }
+.md-files .hint { margin-left: auto; white-space: nowrap; }
+.md-console { margin: 0; max-height: 220px; overflow: auto; padding: 8px 10px; border-radius: 6px;
+              background: #000; color: #e8e8e8; font: 11px/1.35 var(--mono); white-space: pre-wrap; }
+.md-series td.name { white-space: normal; }
+.md-series td.why { color: var(--muted); white-space: normal; text-align: left; }
+.md-series th:last-child { text-align: left; }
+.err-text { color: var(--danger); font-size: .8em; }
+.md-figure { margin-top: 12px; }
+.md-figure img { display: block; max-width: 100%; height: auto; border-radius: 6px; }
+table.md-compare { border-collapse: collapse; font-size: .82rem; margin-top: 10px; width: 100%; }
+table.md-compare th, table.md-compare td { padding: 3px 8px; border-bottom: 1px solid var(--line); text-align: left; }
+table.md-compare td:first-child { color: var(--muted); white-space: nowrap; }
+table.md-compare th { font-weight: 600; }
+.md-drops-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 600px) { .md-drops-3 { grid-template-columns: 1fr; } }
+
+/* --- 3D stage (common/med/gl3d.js): canvas, view buttons, axis gizmo ------- */
+.md-views { display: inline-flex; gap: 2px; }
+.md-views .btn { min-width: 28px; padding: 0 6px; }
+.md-stage { position: relative; margin-top: 8px; height: 68vh; min-height: 360px; border-radius: 6px;
+            overflow: hidden; background: #000; border: 1px solid var(--line); }
+.md-stage canvas.md-gl { display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.md-stage canvas.md-gl:active { cursor: grabbing; }
+.md-gizmo { position: absolute; left: 6px; bottom: 6px; width: 96px; height: 96px; pointer-events: none; }
+.md-stage-empty { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            color: #9ca3af; font-size: .9rem; text-align: center; padding: 24px; pointer-events: none; }
+@media (max-width: 600px) { .md-stage { height: 56vh; } }
+
+/* Controls inside a segment table: colour, opacity, space, remove. */
+.md-segtable td input[type="color"] { width: 26px; height: 20px; padding: 0; border: 0; background: none; cursor: pointer; }
+.md-segtable td input[type="range"] { width: 80px; }
+.md-segtable td select { height: 24px; font-size: .8rem; padding: 0 4px; }
+.md-segtable td .drop-x { position: static; display: inline; }
+
+/* --- Saved figures (common/js/savelist.js) ---------------------------------- */
+.md-saved { margin-top: 12px; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius);
+            background: var(--surface); }
+.md-saved .row { flex-wrap: wrap; gap: 6px 10px; }
+.md-thumbs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.md-thumbs:empty { display: none; }
+.md-thumb { position: relative; margin: 0; width: 150px; border: 1px solid var(--line); border-radius: 6px;
+            overflow: hidden; background: #fff; }
+.md-thumb img { display: block; width: 150px; }
+.md-thumb figcaption { font-size: .72rem; padding: 3px 5px; color: var(--fg-2); background: var(--surface);
+                       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.md-thumb .drop-x { position: absolute; top: 3px; right: 3px; display: block; width: 20px; height: 20px; line-height: 18px;
+                    border-radius: 50%; border: 0; background: rgba(17, 24, 39, .7); color: #fff; cursor: pointer; padding: 0; }
+.md-thumb .drop-x:hover { background: var(--danger); }
+
+/* --- Direction-composition bar (common/med/dirbar.js) ------------------------- */
+.md-dirbar { display: flex; gap: 2px; height: 12px; }
+.md-dirbar button { flex: 1 1 0; min-width: 3px; height: 100%; padding: 0; border: 0; border-radius: 3px;
+                    cursor: pointer; transition: opacity .15s, transform .15s; }
+.md-dirbar.picked button:not(.on) { opacity: .3; }
+.md-dirbar button:hover { opacity: 1; transform: scaleY(1.35); }
+.md-dirbar .md-dir-empty { flex: 1; border-radius: 3px; background: var(--surface-2); }

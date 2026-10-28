@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Volume Slices</title>
+  <link rel="icon" href="../common/img/favicon.svg">
+  <link rel="stylesheet" href="../common/css/base.css">
+  <link rel="stylesheet" href="../common/css/med.css">
+</head>
+<body data-root=".." data-widget="vol_view">
+  <main class="page">
+    <div class="page-head">
+      <h1>Volume Slices</h1>
+      <p>View a DICOM series / NIfTI volume / segmentation and its metadata.</p>
+    </div>
+
+    <div class="cols">
+      <!-- ================= left: input, details, segments ================= -->
+      <div>
+        <section class="sec sec-input">
+          <h2 class="sec-label">Input</h2>
+          <div class="md-drops">
+            <div id="drop-image"></div>
+            <div id="drop-seg"></div>
+          </div>
+          <div class="row">
+            <button type="button" class="btn small" id="btn-folder"
+                    data-tip="Choose a folder holding a DICOM series (its sub-folders are read too). Shift-click the Image box does the same.">DICOM folder…</button>
+            <div id="drop-lut" class="md-lut grow"></div>
+          </div>
+          <div class="row hidden" id="series-row">
+            <span class="ctl-label">Series</span>
+            <select id="series" class="grow" aria-label="DICOM series"></select>
+          </div>
+          <div class="status" id="status"></div>
+        </section>
+
+        <section class="sec hidden" id="sec-segments">
+          <h2 class="sec-label">Segments <span class="sec-aside" id="seg-count"></span></h2>
+          <div class="row">
+            <button type="button" class="btn small" id="seg-all">All</button>
+            <button type="button" class="btn small" id="seg-none">None</button>
+            <input type="text" id="seg-filter" class="grow hidden" placeholder="Filter…" aria-label="Filter segments">
+          </div>
+          <div class="row">
+            <span class="ctl-label" data-tip="How the segments are drawn over the image.">Draw</span>
+            <select id="seg-mode" aria-label="Draw mode">
+              <option value="fill">Fill</option>
+              <option value="outline">Outline</option>
+              <option value="both">Fill + outline</option>
+            </select>
+            <span class="ctl-label">Opacity</span>
+            <input type="range" id="seg-alpha" min="0.05" max="1" step="0.05" value="0.45" class="grow" aria-label="Opacity">
+            <span class="hint mono" id="seg-alpha-val">0.45</span>
+          </div>
+          <div class="row hidden" id="match-row">
+            <label class="check"><input type="checkbox" id="match-index"> Match the image by voxel index</label>
+            <span class="hint" id="match-why"></span>
+          </div>
+          <div class="md-segtable" id="seg-table"></div>
+        </section>
+
+        <section class="sec collapsed hidden" id="sec-details">
+          <h2 class="sec-label">Metadata</h2>
+          <div id="details"></div>
+        </section>
+      </div>
+
+      <!-- ================= right: viewer, export ================= -->
+      <div>
+        <section class="sec sec-viewer">
+          <h2 class="sec-label">Viewer</h2>
+          <div id="plane-tabs"></div>
+          <div class="md-controls" id="controls">
+            <div class="row" id="image-controls">
+              <select id="win-range" aria-label="Intensity range"
+                      data-tip="The intensities mapped from black to white, before brightness and contrast.">
+                <option value="p99">Range 1–99 %</option>
+                <option value="full">Full range</option>
+              </select>
+              <select id="cmap" aria-label="Colour map">
+                <option value="gray">Grey</option>
+                <option value="hot">Hot</option>
+                <option value="viridis">Viridis</option>
+                <option value="jet">Jet</option>
+              </select>
+              <span class="ctl-label">Brightness</span>
+              <input type="range" id="bright" min="-100" max="100" step="1" value="0" class="md-bc" aria-label="Brightness"
+                     data-tip="Double-click to reset.">
+              <span class="ctl-label">Contrast</span>
+              <input type="range" id="contrast" min="-100" max="100" step="1" value="0" class="md-bc" aria-label="Contrast"
+                     data-tip="Double-click to reset.">
+              <button type="button" class="btn small" id="bc-reset">Reset</button>
+            </div>
+            <div class="row hidden" id="frame-row">
+              <span class="ctl-label">Frame</span>
+              <input type="range" id="frame" min="0" max="0" value="0" class="grow" aria-label="Frame">
+              <span class="hint mono" id="frame-val"></span>
+            </div>
+          </div>
+          <div class="md-slicebar">
+            <span class="ctl-label">Slice</span>
+            <input type="range" id="slice" min="0" max="0" value="0" class="grow" aria-label="Slice">
+            <input type="number" id="slice-num" min="0" value="0" aria-label="Slice number">
+            <span class="hint mono" id="slice-info"></span>
+          </div>
+          <div id="strip" class="md-strip hidden"></div>
+          <div id="panels"></div>
+          <div class="md-readout mono" id="readout"></div>
+        </section>
+
+        <section class="sec collapsed hidden" id="sec-export">
+          <h2 class="sec-label">Export mosaic <span class="sec-aside" id="mx-plane"></span></h2>
+          <div class="md-form">
+            <label data-tip="Rows × columns of the grid. Filled in from the slice's shape; change it freely.">Grid
+              <span class="md-grid-in"><input type="number" id="mx-rows" min="1" max="20" value="3" aria-label="Rows">
+                × <input type="number" id="mx-cols" min="1" max="20" value="5" aria-label="Columns"></span></label>
+            <label data-tip="Auto: evenly spread over the slices holding the shown segments (or the image's signal).">Slices
+              <select id="mx-range">
+                <option value="auto">Auto</option>
+                <option value="list">Enter slice indices</option>
+              </select></label>
+            <label class="md-wide mx-list hidden" data-tip="Comma-separated; a–b for a range, e.g. 20, 34, 40-60. One tile each, in the grid's columns.">Slice indices
+              <input type="text" id="mx-list" placeholder="e.g. 20, 34, 40-60"></label>
+            <label>Captions
+              <select id="mx-caption">
+                <option value="index">Slice number</option>
+                <option value="mm">Position (mm)</option>
+                <option value="none">None</option>
+              </select></label>
+            <label>Format
+              <select id="mx-format">
+                <option value="png">PNG</option>
+                <option value="a4-landscape">PDF, A4 landscape</option>
+                <option value="a4-portrait">PDF, A4 portrait</option>
+                <option value="fit">PDF, page = image</option>
+              </select></label>
+            <label class="md-wide">Title <input type="text" id="mx-title" placeholder="(none)"></label>
+          </div>
+          <div class="row">
+            <label class="check" id="mx-legend-box"><input type="checkbox" id="mx-legend" checked> Legend</label>
+            <label class="check"><input type="checkbox" id="mx-letters" checked> Orientation letters</label>
+            <label class="check"><input type="checkbox" id="mx-white"> White background</label>
+            <span class="grow"></span>
+            <button type="button" class="btn" id="mx-preview">Preview</button>
+            <button type="button" class="btn primary" id="mx-export">Export</button>
+          </div>
+          <div class="status" id="mx-status"></div>
+          <div class="md-preview hidden" id="mx-out"></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="../common/registry.js"></script>
+  <script src="../common/js/chrome.js"></script>
+  <script src="../common/js/ui.js"></script>
+  <script src="../common/vendor/dicomParser.min.js"></script>
+  <script src="../common/med/volume.js"></script>
+  <script src="../common/med/io.js"></script>
+  <script src="../common/med/io_nifti.js"></script>
+  <script src="../common/med/io_nrrd.js"></script>
+  <script src="../common/med/io_dicom.js"></script>
+  <script src="../common/med/labels.js"></script>
+  <script src="../common/med/render.js"></script>
+  <script src="../common/med/viewer.js"></script>
+  <script src="../common/js/pdf.js"></script>
+  <script src="lib/mosaic.js"></script>
+  <script src="lib/app.js"></script>
+</body>
+</html>
